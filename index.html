@@ -179,66 +179,120 @@ alert("Sem dados");
 return;
 }
 
-const { jsPDF }=window.jspdf;
-let doc=new jsPDF();
+const { jsPDF } = window.jspdf;
+let doc = new jsPDF();
 
-let col=0,row=0;
+let col = 0;
+let row = 0;
+
+// 🔥 6 por página (2x3)
+const boxW = 90;
+const boxH = 80;
 
 for(let i=0;i<base.length;i++){
 
-let d=base[i];
+let d = base[i];
 
-if(i%8===0 && i>0){ doc.addPage(); col=0; row=0; }
+// nova página
+if(i%6===0 && i>0){
+doc.addPage();
+col = 0;
+row = 0;
+}
 
-if(i%8===0){
+// CABEÇALHO LIMPO
+if(i%6===0){
+
 doc.setFontSize(14);
+doc.setFont(undefined,"bold");
 doc.text("Medições Caixilharia",105,12,{align:"center"});
+
+doc.setFont(undefined,"normal");
 doc.setFontSize(9);
-doc.text("Cliente: "+d.cliente,10,22);
-doc.text("Morada: "+d.morada,10,28);
-doc.text("Data: "+d.data,10,34);
+
+doc.text("Cliente: "+(d.cliente||"-"),10,22);
+doc.text("Morada: "+(d.morada||"-"),10,28);
+doc.text("Data: "+(d.data||"-"),10,34);
+
+doc.setDrawColor(180);
 doc.line(10,37,200,37);
 }
 
-let x=10+(col*95);
-let y=40+(row*65);
+// posição
+let x = 10 + (col * 95);
+let y = 40 + (row * 85);
 
-doc.rect(x,y,90,60);
+// caixa
+doc.setDrawColor(150);
+doc.rect(x,y,boxW,boxH);
 
-doc.setFontSize(9);
-doc.text("VÃO "+(i+1),x+3,y+6);
+// título
+doc.setFontSize(10);
+doc.setFont(undefined,"bold");
+doc.text("VÃO "+(i+1), x+3, y+6);
 
+doc.setFont(undefined,"normal");
 doc.setFontSize(8);
 
-doc.text("Cod: "+(d.codigo||"-"),x+3,y+12);
-doc.text("Vão: "+d.desenho,x+3,y+17);
-doc.text("Vidro: "+(d.vidro||"-"),x+3,y+22);
-doc.text("Osc: "+d.oscilo,x+3,y+27);
-doc.text("Série: "+d.serie,x+3,y+32);
+// esquerda
+doc.text("Cod: "+(d.codigo||"-"), x+3, y+12);
+doc.text("Vão: "+d.desenho, x+3, y+17);
+doc.text("Vidro: "+(d.vidro||"-"), x+3, y+22);
+doc.text("Osc: "+d.oscilo, x+3, y+27);
+doc.text("Série: "+d.serie, x+3, y+32);
 
-doc.text("L: "+d.largura+" mm",x+3,y+37);
-doc.text("A: "+d.altura+" mm",x+3,y+42);
+doc.text("L: "+d.largura+" mm", x+3, y+37);
+doc.text("A: "+d.altura+" mm", x+3, y+42);
 
-let obs=doc.splitTextToSize("Obs: "+(d.obs||"-"),42);
-let rem=doc.splitTextToSize("Rem: "+(d.remates||"-"),42);
+// OBS
+let obs = doc.splitTextToSize("Obs: "+(d.obs||"-"), 45);
+doc.text(obs.slice(0,3), x+3, y+50);
 
-doc.text(obs.slice(0,2),x+3,y+48);
-doc.text(rem.slice(0,2),x+3,y+56);
+// REMATES
+let rem = doc.splitTextToSize("Rem: "+(d.remates||"-"), 45);
+doc.text(rem.slice(0,2), x+3, y+65);
 
-doc.text("Est: "+d.estores,x+48,y+40);
-doc.text("L: "+(d.lEst||"-"),x+48,y+45);
-doc.text("A: "+(d.aEst||"-"),x+48,y+50);
-doc.text("Cor: "+(d.corEst||"-"),x+48,y+55);
+// direita (imagem + estores)
 
-// 🔥 imagem correta por vão
+// imagem
 if(d.imagem){
-doc.addImage(d.imagem,"JPEG",x+48,y+8,30,25);
+
+let img = new Image();
+img.src = d.imagem;
+
+let maxW = 30;
+let maxH = 25;
+
+let ratio = img.width / img.height;
+
+let w = maxW;
+let h = maxW / ratio;
+
+if(h > maxH){
+h = maxH;
+w = maxH * ratio;
 }
 
+doc.addImage(d.imagem,"JPEG", x+50, y+10, w, h);
+}
+
+// estores
+doc.text("Est: "+d.estores, x+50, y+40);
+doc.text("L: "+(d.lEst||"-"), x+50, y+45);
+doc.text("A: "+(d.aEst||"-"), x+50, y+50);
+doc.text("Cor: "+(d.corEst||"-"), x+50, y+55);
+
+// grid
 col++;
-if(col===2){ col=0; row++; }
-
+if(col===2){
+col=0;
+row++;
 }
+}
+
+// rodapé simples
+doc.setFontSize(8);
+doc.text("Documento técnico de medições",105,290,{align:"center"});
 
 doc.save("orcamento_profissional.pdf");
 base=[];
