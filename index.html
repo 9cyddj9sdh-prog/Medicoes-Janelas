@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medições Caixilharia</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body { font-family: Arial; background:#f2f2f2; padding:15px; }
+.container { background:white; padding:15px; border-radius:10px; max-width:600px; margin:auto; }
+h2 { text-align:center; }
+input, select, textarea { width:100%; padding:8px; margin:6px 0; }
+.row { display:flex; gap:10px; }
+.row > div { flex:1; }
+.canvas-box { border:2px solid #333; height:150px; display:flex; align-items:center; justify-content:center; margin:10px 0; }
+textarea { height:100px; resize:vertical; }
+button { padding:10px; margin:5px; }
+</style>
+</head>
+
+<body>
+<div class="container">
+<h2>Medições Caixilharia</h2>
+
+<label>Cliente</label>
+<input type="text">
+
+<label>Morada</label>
+<input type="text">
+
+<div class="row">
+<div>
+<label>Data</label>
+<input type="date">
+</div>
+<div>
+<label>Material</label>
+<select>
+<option>Alumínio</option>
+<option>PVC</option>
+</select>
+</div>
+</div>
+
+<label>Série</label>
+<select>
+<option>Fria</option>
+<option>Térmica</option>
+</select>
+
+<hr>
+
+<label>Código</label>
+<input type="text">
+
+<label>Tipo</label>
+<input type="text">
+
+<div class="row">
+<div>
+<label>Largura</label>
+<input type="number">
+</div>
+<div>
+<label>Altura</label>
+<input type="number">
+</div>
+</div>
+
+<label><b>Vão</b></label>
+<select id="desenho" onchange="mudarImagem()">
+<option value="Fixo">Fixo</option>
+<option value="Janela1Folha">Janela 1 Folha</option>
+<option value="JanelaAbrir2Folhas">Janela Abrir 2 Folhas</option>
+<option value="JanelaCorrer">Janela Correr</option>
+<option value="Porta">Porta</option>
+</select>
+
+<div class="canvas-box">
+<img id="imgPreview" style="max-height:100%;">
+</div>
+
+<hr>
+
+<label>Soleira de Ressoamento</label>
+<select>
+<option>Sim</option>
+<option>Não</option>
+</select>
+
+<label>OBS</label>
+<textarea></textarea>
+
+<label>Remates</label>
+<textarea></textarea>
+
+<div style="display:flex; justify-content:space-around;">
+<button onclick="limpar()">Limpar</button>
+<button onclick="avancar()">Avançar</button>
+<button onclick="finalizar()">Finalizar</button>
+</div>
+
+</div>
+
+<script>
+let base = JSON.parse(localStorage.getItem("base_janelas")) || [];
+
+function mudarImagem(){
+  let val = document.getElementById("desenho").value;
+  document.getElementById("imgPreview").src = val + ".jpeg";
+}
+
+function limpar(){
+  document.querySelectorAll("input, textarea").forEach(el => el.value = "");
+}
+
+function getDados(){
+  let inputs = document.querySelectorAll("input");
+  let textareas = document.querySelectorAll("textarea");
+  let selects = document.querySelectorAll("select");
+
+  return {
+    cliente: inputs[0]?.value || "",
+    morada: inputs[1]?.value || "",
+    data: inputs[2]?.value || "",
+    codigo: inputs[3]?.value || "",
+    tipo: inputs[4]?.value || "",
+    largura: inputs[5]?.value || "",
+    altura: inputs[6]?.value || "",
+    desenho: selects[2]?.value || "",
+    obs: textareas[0]?.value || "",
+    remates: textareas[1]?.value || ""
+  };
+}
+
+function avancar(){
+  base.push(getDados());
+  localStorage.setItem("base_janelas", JSON.stringify(base));
+
+  let inputs = document.querySelectorAll("input");
+  let textareas = document.querySelectorAll("textarea");
+
+  for(let i = 3; i < inputs.length; i++){
+    inputs[i].value = "";
+  }
+  textareas.forEach(t => t.value = "");
+}
+
+async function finalizar(){
+
+  let atual = getDados();
+  if(atual.codigo || atual.tipo || atual.largura){
+    base.push(atual);
+  }
+
+  const { jsPDF } = window.jspdf;
+  let doc = new jsPDF();
+
+  for(let i=0;i<base.length;i++){
+    let d = base[i];
+    if(i>0) doc.addPage();
+
+    // CABEÇALHO FIXO
+    doc.setFontSize(16);
+    doc.text("Medições Caixilharia", 10, 15);
+
+    doc.setFontSize(10);
+    doc.text("Cliente: " + d.cliente, 10, 25);
+    doc.text("Morada: " + d.morada, 10, 31);
+    doc.text("Data: " + d.data, 10, 37);
+
+    // CORPO
+    doc.setFontSize(11);
+    doc.text("Código: " + d.codigo, 10, 55);
+    doc.text("Tipo: " + d.tipo, 10, 62);
+
+    doc.text("Vão: " + d.desenho, 10, 72);
+    doc.text("Largura: " + d.largura + " mm", 10, 80);
+    doc.text("Altura: " + d.altura + " mm", 10, 88);
+
+    doc.text("OBS:", 10, 105);
+    doc.text(d.obs, 10, 112);
+
+    doc.text("Remates:", 10, 135);
+    doc.text(d.remates, 10, 142);
+
+    // IMAGEM DO VÃO
+    let img = new Image();
+    img.src = d.desenho + ".jpeg";
+
+    await new Promise(resolve => {
+      img.onload = function(){
+        doc.addImage(img, 'JPEG', 120, 55, 70, 70);
+        resolve();
+      }
+      img.onerror = resolve;
+    });
+  }
+
+  doc.save("orcamento_profissional.pdf");
+
+  localStorage.removeItem("base_janelas");
+  base = [];
+}
+
+mudarImagem();
+</script>
+
+</body>
+</html>
