@@ -146,59 +146,107 @@ async function finalizar(){
 
 base.push(dados());
 
-const { jsPDF }=window.jspdf;
-let doc=new jsPDF();
+const { jsPDF } = window.jspdf;
+let doc = new jsPDF();
+
+const margem = 10;
+const larguraBox = 90;
+const alturaBox = 65;
 
 let col=0,row=0;
+
+// 🔥 função segura imagem
+async function getImg(src){
+  return new Promise(resolve=>{
+    let img=new Image();
+    img.crossOrigin="Anonymous";
+    img.onload=function(){
+      let c=document.createElement("canvas");
+      c.width=this.width;
+      c.height=this.height;
+      c.getContext("2d").drawImage(this,0,0);
+      resolve(c.toDataURL("image/jpeg"));
+    };
+    img.onerror=()=>resolve(null);
+    img.src=src;
+  });
+}
 
 for(let i=0;i<base.length;i++){
 
 let d=base[i];
 
+// nova página
 if(i%8===0 && i>0){ doc.addPage(); col=0; row=0; }
 
+// cabeçalho
 if(i%8===0){
-doc.setFontSize(12);
-doc.text("Medições Caixilharia",105,10,{align:"center"});
-doc.setFontSize(9);
-doc.text("Cliente: "+d.cliente,10,20);
-doc.text("Morada: "+d.morada,10,25);
-doc.text("Data: "+d.data,10,30);
+doc.setFontSize(16);
+doc.text("Medições Caixilharia",105,12,{align:"center"});
+
+doc.setFontSize(10);
+doc.text("Cliente: "+d.cliente,10,22);
+doc.text("Morada: "+d.morada,10,28);
+doc.text("Data: "+d.data,10,34);
 }
 
-let x=10+(col*95);
-let y=35+(row*60);
+// posição
+let x = margem + col*(larguraBox+5);
+let y = 38 + row*(alturaBox+5);
 
-doc.rect(x,y,90,55);
+// caixa
+doc.setDrawColor(150);
+doc.rect(x,y,larguraBox,alturaBox);
 
+// título
+doc.setFontSize(10);
+doc.text("VÃO "+(i+1),x+3,y+6);
+
+// conteúdo
 doc.setFontSize(8);
-doc.text("VÃO "+(i+1),x+2,y+5);
 
-doc.text("Cod:"+d.codigo,x+2,y+10);
-doc.text("Vão:"+d.desenho,x+2,y+15);
-doc.text("Vidro:"+d.vidro,x+2,y+20);
-doc.text("Osc:"+d.oscilo,x+2,y+25);
-doc.text("Série:"+d.serie,x+2,y+30);
+doc.text("Cod: "+(d.codigo||"-"),x+3,y+12);
+doc.text("Vão: "+d.desenho,x+3,y+17);
+doc.text("Vidro: "+(d.vidro||"-"),x+3,y+22);
+doc.text("Osc: "+d.oscilo,x+3,y+27);
+doc.text("Série: "+d.serie,x+3,y+32);
 
-doc.text("L:"+d.largura+" A:"+d.altura,x+2,y+35);
+doc.text("L: "+d.largura+" mm",x+3,y+37);
+doc.text("A: "+d.altura+" mm",x+3,y+41);
 
-doc.text("Obs:"+d.obs,x+2,y+40,{maxWidth:50});
-doc.text("Rem:"+d.remates,x+2,y+48,{maxWidth:50});
+// 🔥 texto com quebra REAL
+let obs = doc.splitTextToSize("Obs: "+(d.obs||"-"), 40);
+let rem = doc.splitTextToSize("Rem: "+(d.remates||"-"), 40);
 
-doc.text("Est:"+d.estores,x+50,y+40);
-doc.text("L:"+d.lEst+" A:"+d.aEst,x+50,y+45);
-doc.text("Cor:"+d.corEst,x+50,y+50);
+doc.text(obs,x+3,y+47);
+doc.text(rem,x+3,y+55);
 
-// 🔥 IMAGEM FUNCIONAL
-let img=await loadImgBase64(d.desenho+".jpeg");
-if(img) doc.addImage(img,"JPEG",x+55,y+5,30,30);
+// estores lado direito
+doc.text("Est: "+d.estores,x+48,y+37);
+doc.text("L: "+d.lEst,x+48,y+42);
+doc.text("A: "+d.aEst,x+48,y+47);
+doc.text("Cor: "+d.corEst,x+48,y+52);
 
+// 🔥 IMAGEM FINAL (FUNCIONA MESMO)
+let img = await getImg(d.desenho + ".jpeg");
+
+if(img){
+doc.addImage(img,"JPEG",x+48,y+8,30,25);
+}
+
+// grid
 col++;
 if(col===2){ col=0; row++; }
 
 }
 
+// rodapé simples
+doc.setFontSize(8);
+doc.text("Documento gerado automaticamente",105,290,{align:"center"});
+
 doc.save("orcamento.pdf");
+
+base=[];
 }
 </script>
 
