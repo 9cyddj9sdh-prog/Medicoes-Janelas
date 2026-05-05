@@ -127,17 +127,13 @@ estores:estores.value,lEst:lEst.value,aEst:aEst.value,corEst:corEst.value
 
 function avancar(){ base.push(dados()); limpar(); }
 
-function loadImgBase64(src){
-return new Promise(res=>{
+// 🔥 carregar imagem corretamente
+function loadImage(src){
+return new Promise(resolve=>{
 let img=new Image();
 img.crossOrigin="Anonymous";
-img.onload=function(){
-let c=document.createElement("canvas");
-c.width=this.width; c.height=this.height;
-c.getContext("2d").drawImage(this,0,0);
-res(c.toDataURL("image/jpeg"));
-};
-img.onerror=()=>res(null);
+img.onload=()=>resolve(img);
+img.onerror=()=>resolve(null);
 img.src=src;
 });
 }
@@ -146,40 +142,18 @@ async function finalizar(){
 
 base.push(dados());
 
-const { jsPDF } = window.jspdf;
-let doc = new jsPDF();
-
-const margem = 10;
-const larguraBox = 90;
-const alturaBox = 65;
+const { jsPDF }=window.jspdf;
+let doc=new jsPDF();
 
 let col=0,row=0;
-
-// 🔥 função segura imagem
-async function getImg(src){
-  return new Promise(resolve=>{
-    let img=new Image();
-    img.crossOrigin="Anonymous";
-    img.onload=function(){
-      let c=document.createElement("canvas");
-      c.width=this.width;
-      c.height=this.height;
-      c.getContext("2d").drawImage(this,0,0);
-      resolve(c.toDataURL("image/jpeg"));
-    };
-    img.onerror=()=>resolve(null);
-    img.src=src;
-  });
-}
 
 for(let i=0;i<base.length;i++){
 
 let d=base[i];
 
-// nova página
 if(i%8===0 && i>0){ doc.addPage(); col=0; row=0; }
 
-// cabeçalho
+// CABEÇALHO
 if(i%8===0){
 doc.setFontSize(16);
 doc.text("Medições Caixilharia",105,12,{align:"center"});
@@ -190,19 +164,19 @@ doc.text("Morada: "+d.morada,10,28);
 doc.text("Data: "+d.data,10,34);
 }
 
-// posição
-let x = margem + col*(larguraBox+5);
-let y = 38 + row*(alturaBox+5);
+// POSIÇÃO
+let x=10+(col*95);
+let y=38+(row*65);
 
-// caixa
-doc.setDrawColor(150);
-doc.rect(x,y,larguraBox,alturaBox);
+// CAIXA
+doc.setDrawColor(120);
+doc.rect(x,y,90,60);
 
-// título
+// TITULO
 doc.setFontSize(10);
 doc.text("VÃO "+(i+1),x+3,y+6);
 
-// conteúdo
+// TEXTO
 doc.setFontSize(8);
 
 doc.text("Cod: "+(d.codigo||"-"),x+3,y+12);
@@ -214,44 +188,50 @@ doc.text("Série: "+d.serie,x+3,y+32);
 doc.text("L: "+d.largura+" mm",x+3,y+37);
 doc.text("A: "+d.altura+" mm",x+3,y+41);
 
-// 🔥 texto com quebra REAL
-let obs = doc.splitTextToSize("Obs: "+(d.obs||"-"), 40);
-let rem = doc.splitTextToSize("Rem: "+(d.remates||"-"), 40);
+// TEXTO COM QUEBRA
+let obs = doc.splitTextToSize("Obs: "+(d.obs||"-"), 42);
+let rem = doc.splitTextToSize("Rem: "+(d.remates||"-"), 42);
 
-doc.text(obs,x+3,y+47);
+doc.text(obs,x+3,y+46);
 doc.text(rem,x+3,y+55);
 
-// estores lado direito
-doc.text("Est: "+d.estores,x+48,y+37);
-doc.text("L: "+d.lEst,x+48,y+42);
-doc.text("A: "+d.aEst,x+48,y+47);
-doc.text("Cor: "+d.corEst,x+48,y+52);
+// ESTORES
+doc.text("Est: "+d.estores,x+48,y+40);
+doc.text("L: "+d.lEst,x+48,y+45);
+doc.text("A: "+d.aEst,x+48,y+50);
+doc.text("Cor: "+d.corEst,x+48,y+55);
 
-// 🔥 IMAGEM FINAL (FUNCIONA if(img){
+// 🔥 IMAGEM PROPORCIONAL
+let image = await loadImage(d.desenho + ".jpeg");
 
-let image = new Image();
-image.src = img;
+if(image){
 
-let maxW = 30;
-let maxH = 25;
+let maxW=32;
+let maxH=26;
 
-let ratio = image.width / image.height;
+let ratio=image.width/image.height;
 
-let w = maxW;
-let h = maxW / ratio;
+let w=maxW;
+let h=maxW/ratio;
 
-if(h > maxH){
-  h = maxH;
-  w = maxH * ratio;
+if(h>maxH){
+h=maxH;
+w=maxH*ratio;
 }
 
-let posX = x + 48 + (maxW - w)/2;
-let posY = y + 8 + (maxH - h)/2;
+let posX=x+48+(maxW-w)/2;
+let posY=y+8+(maxH-h)/2;
 
-doc.addImage(img,"JPEG",posX,posY,w,h);
-} 
+doc.addImage(image,"JPEG",posX,posY,w,h);
+}
 
-// rodapé simples
+// GRID
+col++;
+if(col===2){ col=0; row++; }
+
+}
+
+// RODAPÉ
 doc.setFontSize(8);
 doc.text("Documento gerado automaticamente",105,290,{align:"center"});
 
