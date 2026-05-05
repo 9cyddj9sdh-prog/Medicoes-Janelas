@@ -51,7 +51,6 @@ button:nth-child(3){ background:#28a745; }
 <label>Largura</label>
 <input id="largura" oninput="soNumeros(this)">
 </div>
-
 <div>
 <label>Altura</label>
 <input id="altura" oninput="soNumeros(this)">
@@ -104,7 +103,6 @@ button:nth-child(3){ background:#28a745; }
 <label>Largura</label>
 <input id="lEst" oninput="soNumeros(this)">
 </div>
-
 <div>
 <label>Altura</label>
 <input id="aEst" oninput="soNumeros(this)">
@@ -140,54 +138,127 @@ estores:estores.value,lEst:lEst.value,aEst:aEst.value,corEst:corEst.value
 };
 }
 
-function avancar(){
-base.push(dados());
+// 🔥 converter imagem para base64
+function getImagemBase64(nome){
+  return new Promise(resolve=>{
+    let img=new Image();
+    img.crossOrigin="Anonymous";
+    img.onload=function(){
+      let canvas=document.createElement("canvas");
+      canvas.width=this.width;
+      canvas.height=this.height;
+      canvas.getContext("2d").drawImage(this,0,0);
+      resolve(canvas.toDataURL("image/jpeg"));
+    };
+    img.onerror=()=>resolve(null);
+    img.src=nome+".jpeg";
+  });
+}
+
+async function avancar(){
+
+let d=dados();
+d.imagem=await getImagemBase64(d.desenho);
+
+base.push(d);
+
 guardarCliente();
 limpar();
-alert("Janela guardada!");
-}
 
-function finalizar(){
-if(base.length === 0){
-alert("Sem dados para gerar PDF");
-return;
-}
-
-const { jsPDF } = window.jspdf;
-let doc = new jsPDF();
-
-let y=20;
-
-base.forEach((d,i)=>{
-doc.text("VÃO "+(i+1),10,y);
-y+=5;
-doc.text("Cliente: "+d.cliente,10,y); y+=5;
-doc.text("Medidas: "+d.largura+"x"+d.altura,10,y); y+=10;
-});
-
-doc.save("orcamento.pdf");
-base=[];
+alert("Janela guardada");
 }
 
 function soNumeros(el){
-el.value = el.value.replace(/[^0-9]/g,'');
+el.value=el.value.replace(/[^0-9]/g,'');
+}
+
+async function finalizar(){
+
+if(base.length===0){
+alert("Sem dados");
+return;
+}
+
+const { jsPDF }=window.jspdf;
+let doc=new jsPDF();
+
+let col=0,row=0;
+
+for(let i=0;i<base.length;i++){
+
+let d=base[i];
+
+if(i%8===0 && i>0){ doc.addPage(); col=0; row=0; }
+
+if(i%8===0){
+doc.setFontSize(14);
+doc.text("Medições Caixilharia",105,12,{align:"center"});
+doc.setFontSize(9);
+doc.text("Cliente: "+d.cliente,10,22);
+doc.text("Morada: "+d.morada,10,28);
+doc.text("Data: "+d.data,10,34);
+doc.line(10,37,200,37);
+}
+
+let x=10+(col*95);
+let y=40+(row*65);
+
+doc.rect(x,y,90,60);
+
+doc.setFontSize(9);
+doc.text("VÃO "+(i+1),x+3,y+6);
+
+doc.setFontSize(8);
+
+doc.text("Cod: "+(d.codigo||"-"),x+3,y+12);
+doc.text("Vão: "+d.desenho,x+3,y+17);
+doc.text("Vidro: "+(d.vidro||"-"),x+3,y+22);
+doc.text("Osc: "+d.oscilo,x+3,y+27);
+doc.text("Série: "+d.serie,x+3,y+32);
+
+doc.text("L: "+d.largura+" mm",x+3,y+37);
+doc.text("A: "+d.altura+" mm",x+3,y+42);
+
+let obs=doc.splitTextToSize("Obs: "+(d.obs||"-"),42);
+let rem=doc.splitTextToSize("Rem: "+(d.remates||"-"),42);
+
+doc.text(obs.slice(0,2),x+3,y+48);
+doc.text(rem.slice(0,2),x+3,y+56);
+
+doc.text("Est: "+d.estores,x+48,y+40);
+doc.text("L: "+(d.lEst||"-"),x+48,y+45);
+doc.text("A: "+(d.aEst||"-"),x+48,y+50);
+doc.text("Cor: "+(d.corEst||"-"),x+48,y+55);
+
+// 🔥 imagem correta por vão
+if(d.imagem){
+doc.addImage(d.imagem,"JPEG",x+48,y+8,30,25);
+}
+
+col++;
+if(col===2){ col=0; row++; }
+
+}
+
+doc.save("orcamento_profissional.pdf");
+base=[];
 }
 
 // HISTÓRICO
 function guardarCliente(){
-let lista = JSON.parse(localStorage.getItem("clientes")) || [];
-let novo = {cliente:cliente.value,morada:morada.value,data:data.value};
+let lista=JSON.parse(localStorage.getItem("clientes"))||[];
+let novo={cliente:cliente.value,morada:morada.value,data:data.value};
 
 if(novo.cliente && !lista.some(c=>c.cliente===novo.cliente)){
 lista.push(novo);
-localStorage.setItem("clientes", JSON.stringify(lista));
+localStorage.setItem("clientes",JSON.stringify(lista));
 }
 carregarClientes();
 }
 
 function carregarClientes(){
-let lista = JSON.parse(localStorage.getItem("clientes")) || [];
-let datalist = document.getElementById("listaClientes");
+let lista=JSON.parse(localStorage.getItem("clientes"))||[];
+let datalist=document.getElementById("listaClientes");
 datalist.innerHTML="";
 lista.forEach(c=>{
 let option=document.createElement("option");
@@ -197,8 +268,8 @@ datalist.appendChild(option);
 }
 
 cliente.addEventListener("change",function(){
-let lista = JSON.parse(localStorage.getItem("clientes")) || [];
-let c = lista.find(x=>x.cliente===this.value);
+let lista=JSON.parse(localStorage.getItem("clientes"))||[];
+let c=lista.find(x=>x.cliente===this.value);
 if(c){ morada.value=c.morada; data.value=c.data; }
 });
 
