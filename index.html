@@ -227,18 +227,29 @@ doc.text("L: "+d.lEst,x+48,y+42);
 doc.text("A: "+d.aEst,x+48,y+47);
 doc.text("Cor: "+d.corEst,x+48,y+52);
 
-// 🔥 IMAGEM FINAL (FUNCIONA MESMO)
-let img = await getImg(d.desenho + ".jpeg");
+// 🔥 IMAGEM FINAL (FUNCIONA if(img){
 
-if(img){
-doc.addImage(img,"JPEG",x+48,y+8,30,25);
+let image = new Image();
+image.src = img;
+
+let maxW = 30;
+let maxH = 25;
+
+let ratio = image.width / image.height;
+
+let w = maxW;
+let h = maxW / ratio;
+
+if(h > maxH){
+  h = maxH;
+  w = maxH * ratio;
 }
 
-// grid
-col++;
-if(col===2){ col=0; row++; }
+let posX = x + 48 + (maxW - w)/2;
+let posY = y + 8 + (maxH - h)/2;
 
-}
+doc.addImage(img,"JPEG",posX,posY,w,h);
+} 
 
 // rodapé simples
 doc.setFontSize(8);
