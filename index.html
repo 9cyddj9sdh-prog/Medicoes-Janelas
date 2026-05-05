@@ -294,10 +294,32 @@ row++;
 doc.setFontSize(8);
 doc.text("Documento técnico de medições",105,290,{align:"center"});
 
-doc.save("orcamento_profissional.pdf");
+guardarOrcamento();
+  
+let nomeCliente = (base[0].cliente || "Cliente")
+.replace(/\s+/g,'_')
+.replace(/[^a-zA-Z0-9_]/g,'');
+
+doc.save("Orcamento_"+nomeCliente+".pdf");
 base=[];
 }
 
+
+  function guardarOrcamento(){
+
+let historico = JSON.parse(localStorage.getItem("orcamentos")) || [];
+
+let novo = {
+data: new Date().toISOString(),
+cliente: base[0].cliente,
+morada: base[0].morada,
+registos: base
+};
+
+historico.push(novo);
+
+localStorage.setItem("orcamentos", JSON.stringify(historico));
+}
 // HISTÓRICO
 function guardarCliente(){
 let lista=JSON.parse(localStorage.getItem("clientes"))||[];
