@@ -28,7 +28,8 @@ button:nth-child(3){ background:#28a745; }
 <h2>Medições Caixilharia</h2>
 
 <label>Cliente</label>
-<input id="cliente">
+<input id="cliente" list="listaClientes">
+<datalist id="listaClientes"></datalist>
 
 <label>Morada</label>
 <input id="morada">
@@ -47,9 +48,9 @@ button:nth-child(3){ background:#28a745; }
 
 <div class="row">
 <div><label>Largura</label>
-<input type="number" inputmode="numeric" id="largura">
+<input id="largura" oninput="soNumeros(this)">
 <div><label>Altura</label>
-<input type="number" inputmode="numeric" id="altura">
+<input id="altura" oninput="soNumeros(this)">
 
 <label>Vão</label>
 <select id="desenho" onchange="imgPreview.src=this.value+'.jpeg'">
@@ -94,9 +95,9 @@ button:nth-child(3){ background:#28a745; }
 
 <div class="row">
 <div><label>Largura</label>
-<input type="number" inputmode="numeric" id="largura">
+<input id="largura" oninput="soNumeros(this)">
 <div><label>Altura</label>
-<input type="number" inputmode="numeric" id="altura">
+<input id="altura" oninput="soNumeros(this)">
 <label>Cor</label>
 <input id="corEst">
 
@@ -126,7 +127,11 @@ estores:estores.value,lEst:lEst.value,aEst:aEst.value,corEst:corEst.value
 };
 }
 
-function avancar(){ base.push(dados()); limpar(); }
+function avancar(){
+  base.push(dados());
+  guardarCliente();
+  limpar();
+}
 
 // 🔥 carregar imagem corretamente
 function loadImage(src){
@@ -303,6 +308,63 @@ doc.save("orcamento_profissional.pdf");
 
 base=[];
 }
+
+  function soNumeros(el){
+  el.value = el.value.replace(/[^0-9]/g, '');
+}
+  // =============================
+// HISTÓRICO DE CLIENTES
+// =============================
+
+// guardar cliente automaticamente
+function guardarCliente(){
+
+  let lista = JSON.parse(localStorage.getItem("clientes")) || [];
+
+  let novo = {
+    cliente: document.getElementById("cliente").value,
+    morada: document.getElementById("morada").value,
+    data: document.getElementById("data").value
+  };
+
+  // evitar duplicados
+  if(novo.cliente && !lista.some(c => c.cliente === novo.cliente)){
+    lista.push(novo);
+    localStorage.setItem("clientes", JSON.stringify(lista));
+  }
+
+  carregarClientes();
+}
+
+// carregar lista para sugestões
+function carregarClientes(){
+
+  let lista = JSON.parse(localStorage.getItem("clientes")) || [];
+  let datalist = document.getElementById("listaClientes");
+
+  datalist.innerHTML = "";
+
+  lista.forEach(c=>{
+    let option = document.createElement("option");
+    option.value = c.cliente;
+    datalist.appendChild(option);
+  });
+}
+
+// auto-preencher cliente
+document.getElementById("cliente").addEventListener("change", function(){
+
+  let lista = JSON.parse(localStorage.getItem("clientes")) || [];
+  let encontrado = lista.find(c => c.cliente === this.value);
+
+  if(encontrado){
+    document.getElementById("morada").value = encontrado.morada;
+    document.getElementById("data").value = encontrado.data;
+  }
+});
+
+// iniciar ao abrir
+carregarClientes();
 </script>
 
 </body>
