@@ -142,100 +142,163 @@ async function finalizar(){
 
 base.push(dados());
 
-const { jsPDF }=window.jspdf;
-let doc=new jsPDF();
+const { jsPDF } = window.jspdf;
+let doc = new jsPDF();
 
-let col=0,row=0;
+const margem = 10;
+const boxW = 90;
+const boxH = 65;
+
+let col = 0;
+let row = 0;
+
+// carregar imagem corretamente
+function loadImage(src){
+  return new Promise(resolve=>{
+    let img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
 
 for(let i=0;i<base.length;i++){
 
-let d=base[i];
+let d = base[i];
 
-if(i%8===0 && i>0){ doc.addPage(); col=0; row=0; }
+// nova página
+if(i%8===0 && i>0){
+  doc.addPage();
+  col = 0;
+  row = 0;
+}
 
-// CABEÇALHO
+// CABEÇALHO PROFISSIONAL
 if(i%8===0){
+
 doc.setFontSize(16);
+doc.setFont(undefined, "bold");
 doc.text("Medições Caixilharia",105,12,{align:"center"});
 
 doc.setFontSize(10);
-doc.text("Cliente: "+d.cliente,10,22);
-doc.text("Morada: "+d.morada,10,28);
-doc.text("Data: "+d.data,10,34);
+doc.setFont(undefined, "normal");
+
+doc.text("Cliente:",10,22);
+doc.text(d.cliente || "-",35,22);
+
+doc.text("Morada:",10,28);
+doc.text(d.morada || "-",35,28);
+
+doc.text("Data:",10,34);
+doc.text(d.data || "-",35,34);
+
+// linha separadora
+doc.setDrawColor(180);
+doc.line(10,37,200,37);
 }
 
-// POSIÇÃO
-let x=10+(col*95);
-let y=38+(row*65);
+// POSIÇÃO GRID
+let x = margem + col*(boxW+5);
+let y = 40 + row*(boxH+5);
 
 // CAIXA
-doc.setDrawColor(120);
-doc.rect(x,y,90,60);
+doc.setDrawColor(150);
+doc.rect(x,y,boxW,boxH);
 
-// TITULO
+// TÍTULO
 doc.setFontSize(10);
-doc.text("VÃO "+(i+1),x+3,y+6);
+doc.setFont(undefined,"bold");
+doc.text("VÃO " + String(i+1).padStart(2,'0'), x+3, y+6);
 
-// TEXTO
+doc.setFont(undefined,"normal");
 doc.setFontSize(8);
 
-doc.text("Cod: "+(d.codigo||"-"),x+3,y+12);
-doc.text("Vão: "+d.desenho,x+3,y+17);
-doc.text("Vidro: "+(d.vidro||"-"),x+3,y+22);
-doc.text("Osc: "+d.oscilo,x+3,y+27);
-doc.text("Série: "+d.serie,x+3,y+32);
+// COLUNA ESQUERDA
+doc.text("Cod:", x+3, y+12);
+doc.text(d.codigo || "-", x+18, y+12);
 
-doc.text("L: "+d.largura+" mm",x+3,y+37);
-doc.text("A: "+d.altura+" mm",x+3,y+41);
+doc.text("Vão:", x+3, y+17);
+doc.text(d.desenho, x+18, y+17);
 
-// TEXTO COM QUEBRA
-let obs = doc.splitTextToSize("Obs: "+(d.obs||"-"), 42);
-let rem = doc.splitTextToSize("Rem: "+(d.remates||"-"), 42);
+doc.text("Vidro:", x+3, y+22);
+doc.text(d.vidro || "-", x+18, y+22);
 
-doc.text(obs,x+3,y+46);
-doc.text(rem,x+3,y+55);
+doc.text("Osc:", x+3, y+27);
+doc.text(d.oscilo, x+18, y+27);
 
-// ESTORES
-doc.text("Est: "+d.estores,x+48,y+40);
-doc.text("L: "+d.lEst,x+48,y+45);
-doc.text("A: "+d.aEst,x+48,y+50);
-doc.text("Cor: "+d.corEst,x+48,y+55);
+doc.text("Série:", x+3, y+32);
+doc.text(d.serie, x+18, y+32);
 
-// 🔥 IMAGEM PROPORCIONAL
+doc.text("L:", x+3, y+37);
+doc.text(d.largura + " mm", x+18, y+37);
+
+doc.text("A:", x+3, y+42);
+doc.text(d.altura + " mm", x+18, y+42);
+
+// OBS + REMATES com quebra controlada
+let obs = doc.splitTextToSize("Obs: " + (d.obs || "-"), 42);
+let rem = doc.splitTextToSize("Rem: " + (d.remates || "-"), 42);
+
+doc.text(obs.slice(0,2), x+3, y+48);
+doc.text(rem.slice(0,2), x+3, y+56);
+
+// COLUNA DIREITA (ESTORES)
+doc.setFontSize(8);
+
+doc.text("Estores:", x+48, y+37);
+doc.text(d.estores, x+70, y+37);
+
+doc.text("L:", x+48, y+42);
+doc.text(d.lEst || "-", x+55, y+42);
+
+doc.text("A:", x+48, y+47);
+doc.text(d.aEst || "-", x+55, y+47);
+
+doc.text("Cor:", x+48, y+52);
+doc.text(d.corEst || "-", x+60, y+52);
+
+// 🔥 IMAGEM PROPORCIONAL CORRETA
 let image = await loadImage(d.desenho + ".jpeg");
 
 if(image){
 
-let maxW=32;
-let maxH=26;
+let maxW = 32;
+let maxH = 26;
 
-let ratio=image.width/image.height;
+let ratio = image.width / image.height;
 
-let w=maxW;
-let h=maxW/ratio;
+let w = maxW;
+let h = maxW / ratio;
 
-if(h>maxH){
-h=maxH;
-w=maxH*ratio;
+if(h > maxH){
+  h = maxH;
+  w = maxH * ratio;
 }
 
-let posX=x+48+(maxW-w)/2;
-let posY=y+8+(maxH-h)/2;
+// centralizar
+let posX = x + 48 + (maxW - w)/2;
+let posY = y + 8 + (maxH - h)/2;
 
 doc.addImage(image,"JPEG",posX,posY,w,h);
 }
 
 // GRID
 col++;
-if(col===2){ col=0; row++; }
-
+if(col===2){
+  col=0;
+  row++;
+}
 }
 
-// RODAPÉ
-doc.setFontSize(8);
-doc.text("Documento gerado automaticamente",105,290,{align:"center"});
+// RODAPÉ PROFISSIONAL
+doc.setDrawColor(200);
+doc.line(10,285,200,285);
 
-doc.save("orcamento.pdf");
+doc.setFontSize(8);
+doc.text("Documento técnico de medições",105,290,{align:"center"});
+
+doc.save("orcamento_profissional.pdf");
 
 base=[];
 }
