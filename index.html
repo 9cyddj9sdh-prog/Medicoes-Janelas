@@ -158,45 +158,69 @@ async function finalizar(){
   const { jsPDF } = window.jspdf;
   let doc = new jsPDF();
 
+  const larguraPagina = 210;
+  const margem = 10;
+
+  const colunas = 2;
+  const linhas = 2;
+
+  const larguraBox = (larguraPagina - (margem*2)) / colunas;
+  const alturaBox = (297 - 50) / linhas;
+
+  let x = margem;
+  let y = 40;
+  let contador = 0;
+
   for(let i=0;i<base.length;i++){
+
     let d = base[i];
-    if(i>0) doc.addPage();
 
-    // CABEÇALHO FIXO
-    doc.setFontSize(16);
-    doc.text("Medições Caixilharia", 10, 15);
+    if(contador === colunas * linhas){
+      doc.addPage();
+      contador = 0;
+      x = margem;
+      y = 40;
+    }
 
-    doc.setFontSize(10);
-    doc.text("Cliente: " + d.cliente, 10, 25);
-    doc.text("Morada: " + d.morada, 10, 31);
-    doc.text("Data: " + d.data, 10, 37);
+    if(contador === 0){
+      doc.setFontSize(14);
+      doc.text("Medições Caixilharia", larguraPagina/2, 15, {align:"center"});
 
-    // CORPO
-    doc.setFontSize(11);
-    doc.text("Código: " + d.codigo, 10, 55);
-    doc.text("Tipo: " + d.tipo, 10, 62);
+      doc.setFontSize(10);
+      doc.text("Cliente: " + d.cliente, margem, 25);
+      doc.text("Morada: " + d.morada, margem, 30);
+      doc.text("Data: " + d.data, margem, 35);
+    }
 
-    doc.text("Vão: " + d.desenho, 10, 72);
-    doc.text("Largura: " + d.largura + " mm", 10, 80);
-    doc.text("Altura: " + d.altura + " mm", 10, 88);
+    doc.rect(x, y, larguraBox-5, alturaBox-5);
 
-    doc.text("OBS:", 10, 105);
-    doc.text(d.obs, 10, 112);
+    doc.setFontSize(9);
+    doc.text("Código: " + d.codigo, x+2, y+8);
+    doc.text("Tipo: " + d.tipo, x+2, y+14);
+    doc.text("Vão: " + d.desenho, x+2, y+20);
 
-    doc.text("Remates:", 10, 135);
-    doc.text(d.remates, 10, 142);
+    doc.text("L: " + d.largura + " mm", x+2, y+28);
+    doc.text("A: " + d.altura + " mm", x+2, y+34);
 
-    // IMAGEM DO VÃO
     let img = new Image();
     img.src = d.desenho + ".jpeg";
 
     await new Promise(resolve => {
       img.onload = function(){
-        doc.addImage(img, 'JPEG', 120, 55, 70, 70);
+        doc.addImage(img, 'JPEG', x+50, y+5, 40, 40);
         resolve();
       }
       img.onerror = resolve;
     });
+
+    contador++;
+
+    if(contador % colunas === 0){
+      x = margem;
+      y += alturaBox;
+    } else {
+      x += larguraBox;
+    }
   }
 
   doc.save("orcamento_profissional.pdf");
