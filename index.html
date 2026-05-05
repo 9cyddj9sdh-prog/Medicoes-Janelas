@@ -148,6 +148,7 @@ function avancar(){
   textareas.forEach(t => t.value = "");
 }
 
+// 🔥 FUNÇÃO PDF OTIMIZADA
 async function finalizar(){
 
   let atual = getDados();
@@ -162,7 +163,7 @@ async function finalizar(){
   const larguraPagina = 210;
 
   const colunas = 2;
-  const linhas = 4; // 🔥 8 janelas
+  const linhas = 4;
 
   const larguraBox = (larguraPagina - (margem*2)) / colunas;
   const alturaBox = (297 - 50) / linhas;
@@ -192,26 +193,35 @@ async function finalizar(){
       doc.text("Data: " + d.data, margem, 35);
     }
 
+    // caixa
     doc.rect(x, y, larguraBox-3, alturaBox-3);
 
+    // título vão
+    doc.setFontSize(9);
+    doc.text("VÃO " + String(i+1).padStart(2,'0'), x+2, y+6);
+
     doc.setFontSize(8);
+    doc.text("Cod: " + d.codigo, x+2, y+10);
+    doc.text("Tipo: " + d.tipo, x+2, y+14);
+    doc.text("Vão: " + d.desenho, x+2, y+18);
 
-    doc.text("Cod: " + d.codigo, x+2, y+6);
-    doc.text("Tipo: " + d.tipo, x+2, y+10);
-    doc.text("Vão: " + d.desenho, x+2, y+14);
+    doc.text("L: " + d.largura + " mm", x+2, y+24);
+    doc.text("A: " + d.altura + " mm", x+2, y+28);
 
-    doc.text("L: " + d.largura + " mm", x+2, y+20);
-    doc.text("A: " + d.altura + " mm", x+2, y+24);
+    // texto limitado (não rebenta layout)
+    let obs = doc.splitTextToSize("OBS: " + (d.obs || "-"), larguraBox-6);
+    let rem = doc.splitTextToSize("Rem: " + (d.remates || "-"), larguraBox-6);
 
-    doc.text("OBS: " + (d.obs || "-"), x+2, y+30, {maxWidth: larguraBox-6});
-    doc.text("Rem: " + (d.remates || "-"), x+2, y+36, {maxWidth: larguraBox-6});
+    doc.text(obs.slice(0,2), x+2, y+34);   // max 2 linhas
+    doc.text(rem.slice(0,2), x+2, y+44);   // max 2 linhas
 
+    // imagem reduzida
     let img = new Image();
     img.src = d.desenho + ".jpeg";
 
     await new Promise(resolve => {
       img.onload = function(){
-        doc.addImage(img, 'JPEG', x + larguraBox - 35, y+5, 30, 30);
+        doc.addImage(img, 'JPEG', x + larguraBox - 28, y+6, 24, 24);
         resolve();
       }
       img.onerror = resolve;
