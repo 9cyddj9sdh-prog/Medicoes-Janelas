@@ -9,68 +9,49 @@
 
 <style>
 body { font-family: Arial; background:#f2f2f2; padding:15px; }
-.container { background:white; padding:15px; border-radius:10px; max-width:600px; margin:auto; }
-h2 { text-align:center; }
+.container { background:white; padding:20px; border-radius:12px; max-width:650px; margin:auto; }
 input, select, textarea { width:100%; padding:8px; margin:6px 0; }
+label { font-weight:bold; }
 .row { display:flex; gap:10px; }
 .row > div { flex:1; }
-.canvas-box { border:2px solid #333; height:150px; display:flex; align-items:center; justify-content:center; margin:10px 0; }
-textarea { height:100px; resize:vertical; }
-button { padding:10px; margin:5px; }
+.canvas-box { border:2px dashed #666; height:160px; display:flex; align-items:center; justify-content:center; margin:10px 0; }
+button { padding:10px; margin:5px; border:none; border-radius:6px; color:white; }
+button:nth-child(1){ background:#777; }
+button:nth-child(2){ background:#007bff; }
+button:nth-child(3){ background:#28a745; }
 </style>
 </head>
 
 <body>
 <div class="container">
+
 <h2>Medições Caixilharia</h2>
 
 <label>Cliente</label>
-<input type="text">
+<input id="cliente">
 
 <label>Morada</label>
-<input type="text">
+<input id="morada">
 
 <div class="row">
-<div>
-<label>Data</label>
-<input type="date">
-</div>
-<div>
-<label>Material</label>
-<select>
-<option>Alumínio</option>
-<option>PVC</option>
-</select>
+<div><label>Data</label><input type="date" id="data"></div>
+<div><label>Material</label>
+<select id="material"><option>Alumínio</option><option>PVC</option></select>
 </div>
 </div>
-
-<label>Série</label>
-<select>
-<option>Fria</option>
-<option>Térmica</option>
-</select>
 
 <hr>
 
 <label>Código</label>
-<input type="text">
-
-<label>Tipo</label>
-<input type="text">
+<input id="codigo">
 
 <div class="row">
-<div>
-<label>Largura</label>
-<input type="number">
-</div>
-<div>
-<label>Altura</label>
-<input type="number">
-</div>
+<div><label>Largura</label><input id="largura"></div>
+<div><label>Altura</label><input id="altura"></div>
 </div>
 
-<label><b>Vão</b></label>
-<select id="desenho" onchange="mudarImagem()">
+<label>Vão</label>
+<select id="desenho" onchange="imgPreview.src=this.value+'.jpeg'">
 <option value="Fixo">Fixo</option>
 <option value="Janela1Folha">Janela 1 Folha</option>
 <option value="JanelaAbrir2Folhas">Janela Abrir 2 Folhas</option>
@@ -78,23 +59,45 @@ button { padding:10px; margin:5px; }
 <option value="Porta">Porta</option>
 </select>
 
-<div class="canvas-box">
-<img id="imgPreview" style="max-height:100%;">
-</div>
+<div class="canvas-box"><img id="imgPreview" style="max-height:100%"></div>
 
-<hr>
+<label>Vidro</label>
+<input id="vidro">
 
-<label>Soleira de Ressoamento</label>
-<select>
-<option>Sim</option>
-<option>Não</option>
+<label>Oscilo</label>
+<select id="oscilo"><option>Sim</option><option>Não</option></select>
+
+<label>Série</label>
+<select id="serie">
+<option>Série Térmica Abrir 70</option>
+<option>Série Termica Abrir 84</option>
+<option>Série Termica Correr 24200</option>
+<option>Série Fria A40</option>
+<option>Série Fria Europa</option>
+<option>Série Fria Perimetral</option>
+<option>Série de Correr B3</option>
+<option>Série de Correr B1</option>
+<option>Séries Específicas</option>
 </select>
 
 <label>OBS</label>
-<textarea></textarea>
+<textarea id="obs"></textarea>
 
 <label>Remates</label>
-<textarea></textarea>
+<textarea id="remates"></textarea>
+
+<hr>
+
+<label>Estores</label>
+<select id="estores"><option>Sim</option><option>Não</option></select>
+
+<div class="row">
+<div><label>Largura</label><input id="lEst"></div>
+<div><label>Altura</label><input id="aEst"></div>
+</div>
+
+<label>Cor</label>
+<input id="corEst">
 
 <div style="display:flex; justify-content:space-around;">
 <button onclick="limpar()">Limpar</button>
@@ -105,145 +108,98 @@ button { padding:10px; margin:5px; }
 </div>
 
 <script>
-let base = JSON.parse(localStorage.getItem("base_janelas")) || [];
-
-function mudarImagem(){
-  let val = document.getElementById("desenho").value;
-  document.getElementById("imgPreview").src = val + ".jpeg";
-}
+let base=[];
 
 function limpar(){
-  document.querySelectorAll("input, textarea").forEach(el => el.value = "");
+["codigo","largura","altura","vidro","obs","remates","lEst","aEst","corEst"]
+.forEach(id=>document.getElementById(id).value="");
 }
 
-function getDados(){
-  let inputs = document.querySelectorAll("input");
-  let textareas = document.querySelectorAll("textarea");
-  let selects = document.querySelectorAll("select");
-
-  return {
-    cliente: inputs[0]?.value || "",
-    morada: inputs[1]?.value || "",
-    data: inputs[2]?.value || "",
-    codigo: inputs[3]?.value || "",
-    tipo: inputs[4]?.value || "",
-    largura: inputs[5]?.value || "",
-    altura: inputs[6]?.value || "",
-    desenho: selects[2]?.value || "",
-    obs: textareas[0]?.value || "",
-    remates: textareas[1]?.value || ""
-  };
+function dados(){
+return{
+cliente:cliente.value,morada:morada.value,data:data.value,
+codigo:codigo.value,largura:largura.value,altura:altura.value,
+desenho:desenho.value,vidro:vidro.value,oscilo:oscilo.value,serie:serie.value,
+obs:obs.value,remates:remates.value,
+estores:estores.value,lEst:lEst.value,aEst:aEst.value,corEst:corEst.value
+};
 }
 
-function avancar(){
-  base.push(getDados());
-  localStorage.setItem("base_janelas", JSON.stringify(base));
+function avancar(){ base.push(dados()); limpar(); }
 
-  let inputs = document.querySelectorAll("input");
-  let textareas = document.querySelectorAll("textarea");
-
-  for(let i = 3; i < inputs.length; i++){
-    inputs[i].value = "";
-  }
-  textareas.forEach(t => t.value = "");
+function loadImgBase64(src){
+return new Promise(res=>{
+let img=new Image();
+img.crossOrigin="Anonymous";
+img.onload=function(){
+let c=document.createElement("canvas");
+c.width=this.width; c.height=this.height;
+c.getContext("2d").drawImage(this,0,0);
+res(c.toDataURL("image/jpeg"));
+};
+img.onerror=()=>res(null);
+img.src=src;
+});
 }
 
-// 🔥 FUNÇÃO PDF OTIMIZADA
 async function finalizar(){
 
-  let atual = getDados();
-  if(atual.codigo || atual.tipo || atual.largura){
-    base.push(atual);
-  }
+base.push(dados());
 
-  const { jsPDF } = window.jspdf;
-  let doc = new jsPDF();
+const { jsPDF }=window.jspdf;
+let doc=new jsPDF();
 
-  const margem = 10;
-  const larguraPagina = 210;
+let col=0,row=0;
 
-  const colunas = 2;
-  const linhas = 4;
+for(let i=0;i<base.length;i++){
 
-  const larguraBox = (larguraPagina - (margem*2)) / colunas;
-  const alturaBox = (297 - 50) / linhas;
+let d=base[i];
 
-  let x = margem;
-  let y = 40;
-  let contador = 0;
+if(i%8===0 && i>0){ doc.addPage(); col=0; row=0; }
 
-  for(let i=0;i<base.length;i++){
-
-    let d = base[i];
-
-    if(contador === colunas * linhas){
-      doc.addPage();
-      contador = 0;
-      x = margem;
-      y = 40;
-    }
-
-    if(contador === 0){
-      doc.setFontSize(14);
-      doc.text("Medições Caixilharia", larguraPagina/2, 15, {align:"center"});
-
-      doc.setFontSize(9);
-      doc.text("Cliente: " + d.cliente, margem, 25);
-      doc.text("Morada: " + d.morada, margem, 30);
-      doc.text("Data: " + d.data, margem, 35);
-    }
-
-    // caixa
-    doc.rect(x, y, larguraBox-3, alturaBox-3);
-
-    // título vão
-    doc.setFontSize(9);
-    doc.text("VÃO " + String(i+1).padStart(2,'0'), x+2, y+6);
-
-    doc.setFontSize(8);
-    doc.text("Cod: " + d.codigo, x+2, y+10);
-    doc.text("Tipo: " + d.tipo, x+2, y+14);
-    doc.text("Vão: " + d.desenho, x+2, y+18);
-
-    doc.text("L: " + d.largura + " mm", x+2, y+24);
-    doc.text("A: " + d.altura + " mm", x+2, y+28);
-
-    // texto limitado (não rebenta layout)
-    let obs = doc.splitTextToSize("OBS: " + (d.obs || "-"), larguraBox-6);
-    let rem = doc.splitTextToSize("Rem: " + (d.remates || "-"), larguraBox-6);
-
-    doc.text(obs.slice(0,2), x+2, y+34);   // max 2 linhas
-    doc.text(rem.slice(0,2), x+2, y+44);   // max 2 linhas
-
-    // imagem reduzida
-    let img = new Image();
-    img.src = d.desenho + ".jpeg";
-
-    await new Promise(resolve => {
-      img.onload = function(){
-        doc.addImage(img, 'JPEG', x + larguraBox - 28, y+6, 24, 24);
-        resolve();
-      }
-      img.onerror = resolve;
-    });
-
-    contador++;
-
-    if(contador % colunas === 0){
-      x = margem;
-      y += alturaBox;
-    } else {
-      x += larguraBox;
-    }
-  }
-
-  doc.save("orcamento_profissional.pdf");
-
-  localStorage.removeItem("base_janelas");
-  base = [];
+if(i%8===0){
+doc.setFontSize(12);
+doc.text("Medições Caixilharia",105,10,{align:"center"});
+doc.setFontSize(9);
+doc.text("Cliente: "+d.cliente,10,20);
+doc.text("Morada: "+d.morada,10,25);
+doc.text("Data: "+d.data,10,30);
 }
 
-mudarImagem();
+let x=10+(col*95);
+let y=35+(row*60);
+
+doc.rect(x,y,90,55);
+
+doc.setFontSize(8);
+doc.text("VÃO "+(i+1),x+2,y+5);
+
+doc.text("Cod:"+d.codigo,x+2,y+10);
+doc.text("Vão:"+d.desenho,x+2,y+15);
+doc.text("Vidro:"+d.vidro,x+2,y+20);
+doc.text("Osc:"+d.oscilo,x+2,y+25);
+doc.text("Série:"+d.serie,x+2,y+30);
+
+doc.text("L:"+d.largura+" A:"+d.altura,x+2,y+35);
+
+doc.text("Obs:"+d.obs,x+2,y+40,{maxWidth:50});
+doc.text("Rem:"+d.remates,x+2,y+48,{maxWidth:50});
+
+doc.text("Est:"+d.estores,x+50,y+40);
+doc.text("L:"+d.lEst+" A:"+d.aEst,x+50,y+45);
+doc.text("Cor:"+d.corEst,x+50,y+50);
+
+// 🔥 IMAGEM FUNCIONAL
+let img=await loadImgBase64(d.desenho+".jpeg");
+if(img) doc.addImage(img,"JPEG",x+55,y+5,30,30);
+
+col++;
+if(col===2){ col=0; row++; }
+
+}
+
+doc.save("orcamento.pdf");
+}
 </script>
 
 </body>
