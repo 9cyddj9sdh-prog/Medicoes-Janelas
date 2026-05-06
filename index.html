@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+no<!DOCTYPE html>
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
@@ -66,7 +66,35 @@ button:nth-child(3){ background:#28a745; }
 <option value="Porta">Porta</option>
 </select>
 
-<div class="canvas-box"><img id="imgPreview" style="max-height:100%"></div>
+<div class="canvas-box" style="flex-direction:column;">
+
+<img id="imgPreview" style="max-height:120px; transition:0.3s;">
+
+<button 
+type="button"
+onclick="inverterImagem()" 
+style="
+margin-top:5px;
+padding:4px 8px;
+font-size:12px;
+background:#444;
+color:white;
+border:none;
+border-radius:5px;
+width:auto;
+">
+Inverter
+</button>
+
+<div style="
+font-size:11px;
+margin-top:4px;
+color:#555;
+">
+Todas as vistas são por dentro
+</div>
+
+</div>
 
 <label>Vidro</label>
 <input id="vidro">
@@ -123,6 +151,21 @@ button:nth-child(3){ background:#28a745; }
 <script>
 let base=[];
 
+let invertida = false;
+
+function inverterImagem(){
+
+invertida = !invertida;
+
+let img = document.getElementById("imgPreview");
+
+if(invertida){
+img.style.transform = "scaleX(-1)";
+}else{
+img.style.transform = "scaleX(1)";
+}
+}
+  
 function limpar(){
 ["codigo","largura","altura","vidro","obs","remates","lEst","aEst","corEst"]
 .forEach(id=>document.getElementById(id).value="");
