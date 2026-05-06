@@ -177,7 +177,8 @@ cliente:cliente.value,morada:morada.value,data:data.value,
 codigo:codigo.value,largura:largura.value,altura:altura.value,
 desenho:desenho.value,vidro:vidro.value,oscilo:oscilo.value,serie:serie.value,
 obs:obs.value,remates:remates.value,
-estores:estores.value,lEst:lEst.value,aEst:aEst.value,corEst:corEst.value
+estores:estores.value,lEst:lEst.value,aEst:aEst.value,corEst:corEst.value,
+invertida:invertida
 };
 }
 
@@ -316,7 +317,35 @@ h = maxH;
 w = maxH * ratio;
 }
 
-doc.addImage(d.imagem,"JPEG", x+50, y+10, w, h);
+if(d.invertida){
+
+doc.saveGraphicsState();
+
+doc.scale(-1,1);
+
+doc.addImage(
+d.imagem,
+"JPEG",
+-(x+50+w),
+y+10,
+w,
+h
+);
+
+doc.restoreGraphicsState();
+
+}else{
+
+doc.addImage(
+d.imagem,
+"JPEG",
+x+50,
+y+10,
+w,
+h
+);
+
+}
 }
 
 // estores
