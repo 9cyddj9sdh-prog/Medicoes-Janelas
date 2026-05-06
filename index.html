@@ -293,11 +293,12 @@ let obs = doc.splitTextToSize("Obs: "+(d.obs||"-"), 45);
 doc.text(obs.slice(0,3), x+3, y+50);
 
 // REMATES
-let rem = doc.splitTextToSize("Rem: "+(d.remates||"-"), 45);
+let rem = doc.splitTextToSize("Remates: "+(d.remates||"-"), 45);
 doc.text(rem.slice(0,2), x+3, y+65);
 
 // direita (imagem + estores)
 
+// imagem
 // imagem
 if(d.imagem){
 
@@ -317,25 +318,7 @@ h = maxH;
 w = maxH * ratio;
 }
 
-if(d.invertida){
-
-doc.saveGraphicsState();
-
-doc.scale(-1,1);
-
-doc.addImage(
-d.imagem,
-"JPEG",
--(x+50+w),
-y+10,
-w,
-h
-);
-
-doc.restoreGraphicsState();
-
-}else{
-
+// imagem
 doc.addImage(
 d.imagem,
 "JPEG",
@@ -345,21 +328,20 @@ w,
 h
 );
 
-}
-}
-
+// texto pequeno por baixo da imagem
 doc.setFontSize(6);
 
 doc.text(
 "Todas as vistas são por dentro",
 x+50,
-y+37
+y+38
 );
 
 doc.setFontSize(8);
-  
+
+}
 // estores
-doc.text("Est: "+d.estores, x+50, y+40);
+doc.text("Estores: "+d.estores, x+50, y+40);
 doc.text("L: "+(d.lEst||"-"), x+50, y+45);
 doc.text("A: "+(d.aEst||"-"), x+50, y+50);
 doc.text("Cor: "+(d.corEst||"-"), x+50, y+55);
