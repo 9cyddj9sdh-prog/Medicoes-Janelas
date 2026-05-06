@@ -319,6 +319,26 @@ w = maxH * ratio;
 }
 
 // imagem
+if(d.invertida){
+
+doc.saveGraphicsState();
+
+// inverter horizontalmente
+doc.scale(-1,1);
+
+doc.addImage(
+d.imagem,
+"JPEG",
+-(x+50+w),
+y+10,
+w,
+h
+);
+
+doc.restoreGraphicsState();
+
+}else{
+
 doc.addImage(
 d.imagem,
 "JPEG",
@@ -328,13 +348,15 @@ w,
 h
 );
 
+}
+
 // texto pequeno por baixo da imagem
 doc.setFontSize(6);
 
 doc.text(
 "Todas as vistas são por dentro",
 x+50,
-y+33
+y + 10 + h + 3
 );
 
 doc.setFontSize(8);
