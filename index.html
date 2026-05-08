@@ -385,7 +385,15 @@ doc.setFontSize(8);
 
 // esquerda
 doc.text("Cod: "+(d.codigo||"-"), x+3, y+12);
-doc.text("Vão: "+d.desenho, x+3, y+17);
+let nomeVao = d.desenho
+.replace(".PNG","")
+.replace(".png","")
+.replace(".JPG","")
+.replace(".jpg","")
+.replace(".JPEG","")
+.replace(".jpeg","");
+
+doc.text("Vão: "+nomeVao, x+3, y+17);
 doc.text("Vidro: "+(d.vidro||"-"), x+3, y+22);
 doc.text("Osc: "+d.oscilo, x+3, y+27);
 doc.text("Série: "+d.serie, x+3, y+32);
