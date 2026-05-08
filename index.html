@@ -58,12 +58,45 @@ button:nth-child(3){ background:#28a745; }
 </div>
 
 <label>Vão</label>
+
 <select id="desenho" onchange="imgPreview.src=this.value+'.jpeg'">
-<option value="Fixo">Fixo</option>
-<option value="Janela1Folha">Janela 1 Folha</option>
-<option value="JanelaAbrir2Folhas">Janela Abrir 2 Folhas</option>
-<option value="JanelaCorrer">Janela Correr</option>
-<option value="Porta">Porta</option>
+
+<option value="JanelaAbrir1Folha">
+Janela Abrir 1 Folha
+</option>
+
+<option value="JanelaAbrir2Folhas">
+Janela Abrir 2 Folhas
+</option>
+
+<option value="Basculante">
+Basculante
+</option>
+
+<option value="JanelaCorrer2Folhas">
+Janela de Correr 2 Folhas
+</option>
+
+<option value="JanelaCorrer3Folhas">
+Janela de Correr 3 Folhas
+</option>
+
+<option value="PortaJanela1Folha">
+Porta Janela 1 Folha
+</option>
+
+<option value="PortaJanela2Folhas">
+Porta Janela 2 Folhas
+</option>
+
+<option value="Porta">
+Porta
+</option>
+
+<option value="PortaComFixo">
+Porta com Fixo
+</option>
+
 </select>
 
 <div class="canvas-box" style="flex-direction:column;">
@@ -96,23 +129,34 @@ Todas as vistas são por dentro
 
 </div>
 
-<label>Vidro</label>
+<label>Vidro / Painel</label>
 <input id="vidro">
 
 <label>Oscilo</label>
 <select id="oscilo"><option>Sim</option><option>Não</option></select>
 
-<label>Série</label>
+<label>Série MAT</label>
+
 <select id="serie">
-<option>Série Térmica Abrir 70</option>
-<option>Série Termica Abrir 84</option>
-<option>Série Termica Correr 24200</option>
-<option>Série Fria A40</option>
-<option>Série Fria Europa</option>
-<option>Série Fria Perimetral</option>
-<option>Série de Correr B3</option>
-<option>Série de Correr B1</option>
+
+<option>Térmica 70</option>
+
+<option>Térmica 84</option>
+
+<option>Térmica Correr</option>
+
+<option>A40</option>
+
+<option>Série Europa</option>
+
+<option>Perimetral 45</option>
+
+<option>Perimetral 65</option>
+
+<option>B3</option>
+
 <option>Séries Específicas</option>
+
 </select>
 
 <label>OBS</label>
