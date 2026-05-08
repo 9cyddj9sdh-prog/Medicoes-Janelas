@@ -257,6 +257,17 @@ alert("Sem dados");
 return;
 }
 
+if(codigo.value || largura.value || altura.value){
+let d = dados();
+d.imagem = await getImagemBase64(d.desenho);
+
+if(invertida){
+d.imagem = await inverterBase64(d.imagem);
+}
+
+base.push(d);
+}
+
 const { jsPDF } = window.jspdf;
 let doc = new jsPDF();
 
