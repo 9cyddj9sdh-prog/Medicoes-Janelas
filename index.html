@@ -59,7 +59,7 @@ button:nth-child(3){ background:#28a745; }
 
 <label>Vão</label>
 
-<select id="desenho" onchange="imgPreview.src=this.value+'.jpeg'">
+<select id="desenho" onchange="imgPreview.src=this.value">
 
 <option value="JanelaAbrir1Folha">
 Janela Abrir 1 Folha
@@ -268,7 +268,7 @@ function getImagemBase64(nome){
       resolve(canvas.toDataURL("image/jpeg"));
     };
     img.onerror=()=>resolve(null);
-    img.src=nome+".jpeg";
+    img.src=nome;
   });
 }
 
