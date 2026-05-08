@@ -413,15 +413,33 @@ doc.text(rem.slice(0,2), x+3, y+65);
 
 // imagem
 // imagem
-if(d.imagem){
+let img = new Image();
+img.src = d.imagem;
 
+// tamanhos máximos
 let maxW = 30;
 let maxH = 25;
 
-// proporção segura
-let w = maxW;
-let h = maxH;
+// fallback
+let ratio = 1;
 
+// se conseguir ler dimensões
+if(img.width && img.height){
+ratio = img.width / img.height;
+}
+
+let w = maxW;
+let h = w / ratio;
+
+// limitar altura
+if(h > maxH){
+h = maxH;
+w = h * ratio;
+}
+
+// centralizar
+let imgX = x + 50 + ((maxW - w) / 2);
+let imgY = y + 10 + ((maxH - h) / 2);
 // imagens verticais
 if(
 d.desenho.includes("Porta") ||
