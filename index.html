@@ -424,9 +424,15 @@ w = maxH * ratio;
 }
 
 // imagem
+let formato = "JPEG";
+
+if(d.desenho.toLowerCase().includes(".png")){
+formato = "PNG";
+}
+
 doc.addImage(
 d.imagem,
-"JPEG",
+formato,
 x+50,
 y+10,
 w,
