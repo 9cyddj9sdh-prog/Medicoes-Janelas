@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+g<!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
@@ -738,11 +738,11 @@
         saveBudgetHistory(); // Salva o orçamento no histórico
 
         // Gera o nome do arquivo PDF
-      const pdfBlob = doc.output('blob');
-const pdfUrl = URL.createObjectURL(pdfBlob);
+  const pdfData = doc.output('dataurlstring');
+window.location.href = pdfData;
 
 // Abre o PDF numa nova aba no iPhone/Safari
-window.open(pdfUrl, '_blank');
+
 
         measurements = []; // Limpa as medições após gerar PDF
         clearForm(); // Limpa também o formulário principal
