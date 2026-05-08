@@ -415,22 +415,21 @@ doc.text(rem.slice(0,2), x+3, y+65);
 // imagem
 if(d.imagem){
 
-let img = new Image();
-img.src = d.imagem;
-
 let maxW = 30;
 let maxH = 25;
 
-let ratio = img.width / img.height;
-
+// proporção segura
 let w = maxW;
-let h = maxW / ratio;
+let h = maxH;
 
-if(h > maxH){
-h = maxH;
-w = maxH * ratio;
+// imagens verticais
+if(
+d.desenho.includes("Porta") ||
+d.desenho.includes("Fixo")
+){
+w = 18;
+h = 25;
 }
-
 // imagem
 let formato = "JPEG";
 
