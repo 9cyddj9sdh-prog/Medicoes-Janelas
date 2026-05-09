@@ -1,4 +1,4 @@
-g<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@ g<!DOCTYPE html>
     <title>Medições de Caixilharia</title>
 
     <!-- Usando uma versão específica do jsPDF para maior estabilidade -->
-<script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         :root {
@@ -738,8 +738,22 @@ g<!DOCTYPE html>
         saveBudgetHistory(); // Salva o orçamento no histórico
 
         // Gera o nome do arquivo PDF
-  const pdfData = doc.output('dataurlstring');
-window.location.href = pdfData;
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+if (isIOS) {
+
+    // iPhone/Safari
+    const pdfBlob = doc.output('blob');
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    window.open(pdfUrl, '_blank');
+
+} else {
+
+    // Android/Desktop
+    doc.save(`Medicoes_${measurements[0].clientName}.pdf`);
+
+}
 
 // Abre o PDF numa nova aba no iPhone/Safari
 
