@@ -5,114 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medições de Caixilharia</title>
 
+    <!-- Usando uma versão específica do jsPDF para maior estabilidade -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<style>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #28a745;
+            --neutral-color: #6c757d;
+            --dark-color: #343a40;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --input-border: #ced4da;
+            --focus-shadow: rgba(0, 123, 255, 0.25);
+            --border-radius: 0.375rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+        }
 
-:root {
-    --primary-color: #007bff;
-    --secondary-color: #28a745;
-    --neutral-color: #6c757d;
-    --dark-color: #343a40;
-    --light-bg: #f8f9fa;
-    --border-color: #dee2e6;
-    --input-border: #ced4da;
-    --focus-shadow: rgba(0, 123, 255, 0.25);
-    --border-radius: 0.375rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-}
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light-bg);
+            padding: var(--spacing-md);
+            margin: 0;
+            color: var(--dark-color);
+        }
 
-body {
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--light-bg);
-    padding: var(--spacing-md);
-    margin: 0;
-    color: var(--dark-color);
-}
+        .container {
+            background: white;
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            max-width: 700px;
+            margin: var(--spacing-lg) auto;
+        }
 
-.container {
-    background: white;
-    padding: var(--spacing-lg);
-    border-radius: var(--border-radius);
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    max-width: 700px;
-    margin: var(--spacing-lg) auto;
-}
+        h1 {
+            color: var(--dark-color);
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+        }
 
-h1 {
-    color: var(--dark-color);
-    text-align: center;
-    margin-bottom: var(--spacing-lg);
-}
+        label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+            color: var(--dark-color);
+        }
 
-label {
-    display: block;
-    margin-bottom: var(--spacing-sm);
-    font-weight: 600;
-}
+        input[type="text"],
+        input[type="date"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            border: 1px solid var(--input-border);
+            border-radius: var(--border-radius);
+            box-sizing: border-box; /* Garante que padding não aumente a largura */
+            font-size: 1rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
 
-input[type="text"],
-input[type="date"],
-input[type="number"],
-select,
-textarea {
-    width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-    border: 1px solid var(--input-border);
-    border-radius: var(--border-radius);
-    box-sizing: border-box;
-    font-size: 1rem;
-}
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary-color);
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem var(--focus-shadow);
+        }
 
-textarea {
-    resize: vertical;
-    min-height: 80px;
-}
+        textarea {
+            resize: vertical; /* Permite redimensionar apenas verticalmente */
+            min-height: 80px;
+        }
 
-.row {
-    display: flex;
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-}
+        hr {
+            border: 0;
+            border-top: 1px solid var(--border-color);
+            margin: var(--spacing-lg) 0;
+        }
 
-.row > div {
-    flex: 1;
-}
+        .row {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
 
-@media (max-width: 600px) {
-    .row {
-        flex-direction: column;
-        gap: 0;
-    }
-}
+        .row > div {
+            flex: 1;
+        }
 
-.image-preview-card {
-    border: 1px solid var(--border-color);
-    background-color: var(--light-bg);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-md);
-    margin: var(--spacing-md) 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
+        /* Responsividade para linhas */
+        @media (max-width: 600px) {
+            .row {
+                flex-direction: column;
+                gap: 0; /* Remover gap quando em coluna */
+            }
+        }
 
-.image-preview-card img {
-    max-width: 100px;
-    max-height: 100px;
-    transition: transform 0.3s ease-in-out;
-}
+        .image-preview-card {
+            border: 1px solid var(--border-color);
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            margin: var(--spacing-md) 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            min-height: 180px;
+            text-align: center;
+        }
 
-.image-orientation-info {
-    font-size: 0.75rem;
-    color: var(--neutral-color);
-}
+        .image-preview-card img {
+            max-width: 100px; /* Ajuste para melhor visualização */
+            max-height: 100px;
+            transition: transform 0.3s ease-in-out;
+            border: 1px dashed var(--neutral-color); /* Adiciona um estilo visual */
+            padding: 5px;
+            border-radius: var(--border-radius);
+            background-color: white;
+        }
 
-.button-group {
+        .image-orientation-info {
+            font-size: 0.75rem;
+            color: var(--neutral-color);
+            margin-top: var(--spacing-sm);
+        }
+
+        .button-group {
     display: flex;
     gap: 10px;
     margin-top: 20px;
@@ -122,7 +149,9 @@ textarea {
     flex: 1;
 }
 
+/* MOBILE */
 @media (max-width: 768px) {
+
     .button-group {
         flex-direction: column;
     }
@@ -130,594 +159,685 @@ textarea {
     .button-group button {
         width: 100%;
     }
+
 }
 
-button {
-    padding: var(--spacing-sm) var(--spacing-lg);
-    border: none;
-    border-radius: var(--border-radius);
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-}
+        button {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: none;
+            border-radius: var(--border-radius);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            white-space: nowrap; /* Evita que o texto quebre em botões pequenos */
+        }
 
-button.btn-secondary {
-    background-color: var(--neutral-color);
-}
+        button.btn-secondary {
+            background-color: var(--neutral-color);
+        }
 
-button.btn-primary {
-    background-color: var(--primary-color);
-}
+        button.btn-secondary:hover {
+            background-color: #5a6268;
+        }
 
-button.btn-success {
-    background-color: var(--secondary-color);
-}
+        button.btn-primary {
+            background-color: var(--primary-color);
+        }
 
-.image-preview-card .btn-icon {
-    background: var(--dark-color);
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    margin-top: var(--spacing-sm);
-}
+        button.btn-primary:hover {
+            background-color: #0056b3;
+        }
 
-</style>
+        button.btn-success {
+            background-color: var(--secondary-color);
+        }
+
+        button.btn-success:hover {
+            background-color: #218838;
+        }
+
+        /* Estilo para o botão de inverter dentro da imagem */
+        .image-preview-card .btn-icon {
+            background: var(--dark-color);
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            margin-top: var(--spacing-sm);
+            width: auto; /* Anula o width: 100% de input/select/textarea */
+            align-self: flex-end; /* Alinha o botão à direita na imagem */
+            margin-right: calc(50% - 50px); /* Ajuste para centralizar visualmente se imagem tiver 100px */
+        }
+        .image-preview-card .btn-icon:hover {
+            background: #212529;
+        }
+
+        /* Estilo para campos de número com setas ocultas (melhora a estética) */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+    </style>
 </head>
 
 <body>
-
 <div class="container">
 
-<h1>Medições de Caixilharia</h1>
+    <h1>Medições de Caixilharia</h1>
 
-<form id="measurementForm">
+    <form id="measurementForm">
+        <label for="clientName">Cliente <span style="color:red">*</span></label>
+        <input type="text" id="clientName" list="clientList" required>
+        <datalist id="clientList"></datalist>
 
-<label for="clientName">Cliente</label>
-<input type="text" id="clientName" required>
+        <label for="clientAddress">Morada <span style="color:red">*</span></label>
+        <input type="text" id="clientAddress" required>
 
-<label for="clientAddress">Morada</label>
-<input type="text" id="clientAddress" required>
+        <div class="row">
+            <div>
+                <label for="measurementDate">Data <span style="color:red">*</span></label>
+                <input type="date" id="measurementDate" required>
+            </div>
+            <div>
+                <label for="materialType">Material <span style="color:red">*</span></label>
+                <select id="materialType" required>
+                    <option value="Alumínio">Alumínio</option>
+                    <option value="PVC">PVC</option>
+                </select>
+            </div>
+        </div>
 
-<div class="row">
-<div>
-<label for="measurementDate">Data</label>
-<input type="date" id="measurementDate" required>
-</div>
+        <hr>
 
-<div>
-<label for="materialType">Material</label>
-<select id="materialType">
-<option value="Alumínio">Alumínio</option>
-<option value="PVC">PVC</option>
+        <label for="itemCode">Código do Item <span style="color:red">*</span></label>
+        <input type="text" id="itemCode" required>
+
+        <div class="row">
+            <div>
+                <label for="itemWidth">Largura (mm) <span style="color:red">*</span></label>
+                <input type="number" id="itemWidth" min="0" required aria-label="Largura do item em milímetros">
+            </div>
+            <div>
+                <label for="itemHeight">Altura (mm) <span style="color:red">*</span></label>
+                <input type="number" id="itemHeight" min="0" required aria-label="Altura do item em milímetros">
+            </div>
+        </div>
+
+        <label for="windowDesign">Desenho do Vão <span style="color:red">*</span></label>
+        <select id="windowDesign" onchange="updateImagePreview(this.value);" required aria-label="Selecione o desenho do vão">
+            <option value="">Selecione um desenho...</option>
+            <option value="JanelaAbrir1Folha.PNG">Janela Abrir 1 Folha</option>
+            <option value="JanelaAbrir2Folhas.PNG">Janela Abrir 2 Folhas</option>
+            <option value="Basculante.jpg">Basculante</option>
+            <option value="JanelaCorrer2Folhas.PNG">Janela de Correr 2 Folhas</option>
+            <option value="JanelaCorrer3Folhas.JPG">Janela de Correr 3 Folhas</option>
+            <option value="PortaJanela1Folha.jpg">Porta Janela 1 Folha</option>
+            <option value="PortaJanela2Folhas.PNG">Porta Janela 2 Folhas</option>
+            <option value="PortaPainel.JPG">Porta Painel</option>
+            <option value="PortaPainelFixo.JPG">Porta Painel com Fixo</option>
+            <option value="PortaVidro.PNG">Porta Vidro</option>
+            <option value="PortaComFixoVidro.jpg">Porta Vidro com Fixo</option>
+            <option value="Fixo.jpg">Fixo Vertical</option>
+            <option value="FixoHorizontal.PNG">Fixo Horizontal</option>
+        </select>
+
+        <div class="image-preview-card">
+            <img id="imgPreview" src="" alt="Pré-visualização do desenho do vão selecionado" style="display:none;">
+            <button type="button" onclick="toggleImageInversion()" class="btn-icon">Inverter Imagem</button>
+            <div class="image-orientation-info">Todas as vistas são por dentro</div>
+        </div>
+
+        <label for="glassPanelType">Vidro / Painel</label>
+        <input type="text" id="glassPanelType">
+
+        <label for="oscillationType">Oscilo</label>
+        <select id="oscillationType">
+            <option value="Sim">Sim</option>
+            <option value="Não">Não</option>
+        </select>
+
+        <label for="seriesType">Série MAT</label>
+        <select id="seriesType">
+            <option value="Térmica 70">Térmica 70</option>
+            <option value="Térmica 84">Térmica 84</option>
+            <option value="Térmica Correr">Térmica Correr</option>
+            <option value="A40">A40</option>
+            <option value="Série Europa">Série Europa</option>
+            <option value="Perimetral 45">Perimetral 45</option>
+            <option value="Perimetral 65">Perimetral 65</option>
+            <option value="B3">B3</option>
+            <option value="Séries Específicas">Séries Específicas</option>
+        </select>
+
+        <label for="observations">Observações</label>
+        <textarea id="observations"></textarea>
+
+        <label for="finishes">Remates</label>
+        <textarea id="finishes"></textarea>
+
+        <hr>
+
+        <label for="blindsIncluded">Estores</label>
+        <select id="blindsIncluded" onchange="toggleBlindsFields(this.value);">
+            <option value="Não">Não</option>
+            <option value="Sim">Sim</option>
+        </select>
+
+        <div id="blindsFields" style="display:none;">
+            <div class="row">
+                <div>
+                    <label for="blindsWidth">Largura Estores (mm)</label>
+                    <input type="number" id="blindsWidth" min="0" aria-label="Largura dos estores em milímetros">
+                </div>
+                <div>
+                    <label for="blindsHeight">Altura Estores (mm)</label>
+                    <input type="number" id="blindsHeight" min="0" aria-label="Altura dos estores em milímetros">
+                </div>
+            </div>
+            <label for="blindsColor">Cor Estores</label>
+<input type="text" id="blindsColor">
+
+<label for="blindsMotor">Motor</label>
+<select id="blindsMotor">
+    <option value="Não">Não</option>
+    <option value="Sim">Sim</option>
 </select>
-</div>
-</div>
+        </div>
 
-<hr>
+        <div class="button-group">
+            <button type="button" onclick="clearForm()" class="btn-secondary">Limpar</button>
+            <button type="button" onclick="addMeasurement()" class="btn-primary">Adicionar Item</button>
+            <button type="button" onclick="generatePdf()" class="btn-success">Finalizar e Gerar PDF</button>
+        </div>
+    </form>
 
-<label for="itemCode">Código do Item</label>
-<input type="text" id="itemCode" required>
-
-<div class="row">
-<div>
-<label for="itemWidth">Largura (mm)</label>
-<input type="number" id="itemWidth" required>
-</div>
-
-<div>
-<label for="itemHeight">Altura (mm)</label>
-<input type="number" id="itemHeight" required>
-</div>
-</div>
-
-<label for="windowDesign">Desenho do Vão</label>
-
-<select id="windowDesign" onchange="updateImagePreview(this.value);">
-
-<option value="">Selecione...</option>
-
-<option value="JanelaAbrir1Folha.PNG">Janela Abrir 1 Folha</option>
-<option value="JanelaAbrir2Folhas.PNG">Janela Abrir 2 Folhas</option>
-<option value="Basculante.jpg">Basculante</option>
-<option value="JanelaCorrer2Folhas.PNG">Janela Correr 2 Folhas</option>
-
-</select>
-
-<div class="image-preview-card">
-
-<img id="imgPreview" src="" style="display:none;">
-
-<button type="button"
-onclick="toggleImageInversion()"
-class="btn-icon">
-
-Inverter Imagem
-
-</button>
-
-<div class="image-orientation-info">
-Todas as vistas são por dentro
-</div>
-
-</div>
-
-<label for="glassPanelType">Vidro / Painel</label>
-<input type="text" id="glassPanelType">
-
-<label for="observations">Observações</label>
-<textarea id="observations"></textarea>
-
-<label for="finishes">Remates</label>
-<textarea id="finishes"></textarea>
-
-<div class="button-group">
-
-<button type="button"
-onclick="clearForm()"
-class="btn-secondary">
-
-Limpar
-
-</button>
-
-<button type="button"
-onclick="addMeasurement()"
-class="btn-primary">
-
-Adicionar Item
-
-</button>
-
-<button type="button"
-onclick="generatePdf()"
-class="btn-success">
-
-Gerar PDF
-
-</button>
-
-</div>
-
-</form>
 </div>
 
 <script>
+    // Configurações e estado global
+    let measurements = []; // Armazena todas as medições adicionadas
+    let isImageInverted = false; // Estado de inversão da imagem
+    const imageCache = {}; // Cache para armazenar imagens em Base64
 
-let measurements = [];
+    // Elementos do DOM (cache para performance e organização)
+    const elements = {
+        clientName: document.getElementById('clientName'),
+        clientAddress: document.getElementById('clientAddress'),
+        measurementDate: document.getElementById('measurementDate'),
+        materialType: document.getElementById('materialType'),
+        itemCode: document.getElementById('itemCode'),
+        itemWidth: document.getElementById('itemWidth'),
+        itemHeight: document.getElementById('itemHeight'),
+        windowDesign: document.getElementById('windowDesign'),
+        imgPreview: document.getElementById('imgPreview'),
+        glassPanelType: document.getElementById('glassPanelType'),
+        oscillationType: document.getElementById('oscillationType'),
+        seriesType: document.getElementById('seriesType'),
+        observations: document.getElementById('observations'),
+        finishes: document.getElementById('finishes'),
+        blindsIncluded: document.getElementById('blindsIncluded'),
+        blindsFields: document.getElementById('blindsFields'),
+        blindsWidth: document.getElementById('blindsWidth'),
+        blindsHeight: document.getElementById('blindsHeight'),
+        blindsColor: document.getElementById('blindsColor'),
+        clientList: document.getElementById('clientList'),
+        measurementForm: document.getElementById('measurementForm')
+    };
 
-let isImageInverted = false;
-
-const imageCache = {};
-
-const elements = {
-
-    clientName: document.getElementById('clientName'),
-    clientAddress: document.getElementById('clientAddress'),
-    measurementDate: document.getElementById('measurementDate'),
-
-    itemCode: document.getElementById('itemCode'),
-    itemWidth: document.getElementById('itemWidth'),
-    itemHeight: document.getElementById('itemHeight'),
-
-    windowDesign: document.getElementById('windowDesign'),
-
-    imgPreview: document.getElementById('imgPreview'),
-
-    glassPanelType: document.getElementById('glassPanelType'),
-
-    observations: document.getElementById('observations'),
-
-    finishes: document.getElementById('finishes'),
-
-    measurementForm: document.getElementById('measurementForm')
-};
-
-function updateImagePreview(imageFileName) {
-
-    if (imageFileName) {
-
-        elements.imgPreview.src = imageFileName;
-
-        elements.imgPreview.style.display = 'block';
-
-        isImageInverted = false;
-
-        elements.imgPreview.style.transform = "scaleX(1)";
-
-    } else {
-
-        elements.imgPreview.style.display = 'none';
-    }
-}
-
-function toggleImageInversion() {
-
-    isImageInverted = !isImageInverted;
-
-    elements.imgPreview.style.transform =
-        isImageInverted
-        ? "scaleX(-1)"
-        : "scaleX(1)";
-}
-
-async function getImageBase64(url) {
-
-    if (!url) return null;
-
-    if (imageCache[url]) {
-        return imageCache[url];
+    /**
+     * Atualiza a pré-visualização da imagem do vão.
+     * @param {string} imageFileName O nome do arquivo da imagem.
+     */
+    function updateImagePreview(imageFileName) {
+        if (imageFileName) {
+            elements.imgPreview.src = imageFileName;
+            elements.imgPreview.style.display = 'block'; // Mostra a imagem
+            // Resetar a inversão ao mudar de imagem
+            isImageInverted = false;
+            elements.imgPreview.style.transform = "scaleX(1)";
+        } else {
+            elements.imgPreview.src = '';
+            elements.imgPreview.style.display = 'none'; // Esconde a imagem se nenhum for selecionado
+        }
     }
 
-    return new Promise((resolve) => {
+    /**
+     * Inverte horizontalmente a imagem de pré-visualização.
+     */
+    function toggleImageInversion() {
+        if (elements.imgPreview.src) { // Só inverte se houver uma imagem visível
+            isImageInverted = !isImageInverted;
+            elements.imgPreview.style.transform = isImageInverted ? "scaleX(-1)" : "scaleX(1)";
+        }
+    }
 
-        const img = new Image();
+    /**
+     * Converte uma imagem para Base64. Usa cache para evitar requisições repetidas.
+     * @param {string} url Caminho da imagem.
+     * @returns {Promise<string|null>} Base64 da imagem ou null em caso de erro.
+     */
+    async function getImageBase64(url) {
+        if (!url) return null;
+        if (imageCache[url]) {
+            return imageCache[url];
+        }
 
-        img.onload = function () {
+        try {
+            const img = new Image();
+            img.crossOrigin = "Anonymous"; // Importante para carregar imagens de domínios diferentes
+            img.src = url;
 
-            const canvas =
-                document.createElement("canvas");
+            await new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = reject;
+            });
 
+            const canvas = document.createElement("canvas");
             canvas.width = img.width;
             canvas.height = img.height;
+            canvas.getContext("2d").drawImage(img, 0, 0);
+            const base64 = canvas.toDataURL("image/jpeg"); // Use JPEG para melhor compressão e PDFs
 
-            const ctx =
-                canvas.getContext("2d");
+            imageCache[url] = base64; // Armazena no cache
+            return base64;
+        } catch (error) {
+            console.error("Erro ao carregar ou converter imagem para Base64:", error);
+            return null;
+        }
+    }
 
-            ctx.drawImage(img, 0, 0);
+    /**
+     * Inverte uma imagem Base64 horizontalmente.
+     * @param {string} base64Image String Base64 da imagem.
+     * @returns {Promise<string>} Imagem Base64 invertida.
+     */
+    async function invertBase64Image(base64Image) {
+        return new Promise(resolve => {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement("canvas");
+                canvas.width = this.width;
+                canvas.height = this.height;
+                const ctx = canvas.getContext("2d");
 
-            const base64 =
-                canvas.toDataURL("image/jpeg");
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+                ctx.drawImage(this, 0, 0);
 
-            imageCache[url] = base64;
+                resolve(canvas.toDataURL("image/jpeg"));
+            };
+            img.src = base64Image;
+        });
+    }
 
-            resolve(base64);
+    /**
+     * Alterna a visibilidade dos campos de estores.
+     * @param {string} value "Sim" ou "Não"
+     */
+    function toggleBlindsFields(value) {
+        elements.blindsFields.style.display = (value === "Sim") ? 'block' : 'none';
+        // Limpa campos de estores se "Não" for selecionado
+        if (value === "Não") {
+            elements.blindsWidth.value = '';
+            elements.blindsHeight.value = '';
+            elements.blindsColor.value = '';
+        }
+    }
+
+    /**
+     * Limpa os campos do formulário de item atual.
+     */
+    function clearForm() {
+        elements.itemCode.value = '';
+        elements.itemWidth.value = '';
+        elements.itemHeight.value = '';
+        elements.windowDesign.value = ''; // Reseta o select
+        updateImagePreview(''); // Limpa a pré-visualização da imagem
+        elements.glassPanelType.value = '';
+        elements.oscillationType.value = 'Sim'; // Valor padrão
+        elements.seriesType.value = 'Térmica 70'; // Valor padrão
+        elements.observations.value = '';
+        elements.finishes.value = '';
+        elements.blindsIncluded.value = 'Não'; // Reseta estores
+        toggleBlindsFields('Não'); // Esconde campos de estores
+        elements.blindsWidth.value = '';
+        elements.blindsHeight.value = '';
+        elements.blindsColor.value = '';
+        isImageInverted = false; // Reseta o estado de inversão
+    }
+
+    /**
+     * Valida os campos obrigatórios do formulário.
+     * @returns {boolean} True se todos os campos obrigatórios estão preenchidos.
+     */
+    function validateForm() {
+        return elements.measurementForm.checkValidity();
+    }
+
+    /**
+     * Obtém os dados do formulário atual, incluindo a imagem base64.
+     * @returns {Promise<object>} Um objeto contendo todos os dados do formulário.
+     */
+    async function getFormData() {
+        const formData = {
+            clientName: elements.clientName.value.trim(),
+            clientAddress: elements.clientAddress.value.trim(),
+            measurementDate: elements.measurementDate.value,
+            materialType: elements.materialType.value,
+            itemCode: elements.itemCode.value.trim(),
+            itemWidth: elements.itemWidth.value.trim(),
+            itemHeight: elements.itemHeight.value.trim(),
+            windowDesign: elements.windowDesign.value,
+            glassPanelType: elements.glassPanelType.value.trim(),
+            oscillationType: elements.oscillationType.value,
+            seriesType: elements.seriesType.value,
+            observations: elements.observations.value.trim(),
+            finishes: elements.finishes.value.trim(),
+            blindsIncluded: elements.blindsIncluded.value,
+            blindsWidth: elements.blindsWidth.value.trim(),
+            blindsHeight: elements.blindsHeight.value.trim(),
+            blindsColor: elements.blindsColor.value.trim(),
+            isImageInverted: isImageInverted // Guarda o estado de inversão no objeto
         };
 
-        img.src = url;
+        // Adiciona a imagem Base64
+        formData.imageData = await getImageBase64(formData.windowDesign);
+
+        // Se a imagem estiver invertida, inverte a Base64 real para o PDF
+        if (formData.isImageInverted && formData.imageData) {
+            formData.imageData = await invertBase64Image(formData.imageData);
+        }
+        return formData;
+    }
+
+    /**
+     * Adiciona uma medição à lista e limpa o formulário de item.
+     */
+    async function addMeasurement() {
+        if (!validateForm()) {
+            alert("Por favor, preencha todos os campos obrigatórios.");
+            elements.measurementForm.reportValidity(); // Mostra as mensagens de erro do navegador
+            return;
+        }
+
+        const currentFormData = await getFormData();
+        measurements.push(currentFormData);
+
+        saveClientData(); // Salva dados do cliente no LocalStorage
+        clearForm(); // Limpa a seção de item para o próximo
+        alert("Item adicionado com sucesso!");
+    }
+
+    /**
+     * Finaliza o processo, adiciona o último item (se houver) e gera o PDF.
+     */
+    async function generatePdf() {
+        // Se há dados no formulário mas ainda não foram adicionados
+        if (elements.itemCode.value || elements.itemWidth.value || elements.itemHeight.value) {
+            if (validateForm()) {
+                const currentFormData = await getFormData();
+                measurements.push(currentFormData);
+            } else {
+                alert("Por favor, preencha os campos do item atual ou limpe-os antes de finalizar.");
+                elements.measurementForm.reportValidity();
+                return;
+            }
+        }
+
+        if (measurements.length === 0) {
+            alert("Nenhum item adicionado para gerar o PDF.");
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Configurações do layout do PDF
+        const PAGE_MARGIN_X = 10;
+        const PAGE_MARGIN_Y_TOP = 12; // Início do cabeçalho
+        const PAGE_MARGIN_Y_HEADER_BOTTOM = 37; // Linha divisória depois do cabeçalho
+        const ITEM_START_Y = 40; // Início do primeiro item
+        const ITEM_BOX_WIDTH = 90;
+        const ITEM_BOX_HEIGHT = 80;
+        const ITEM_SPACING_X = 5; // Espaçamento entre as caixas na horizontal
+        const ITEM_SPACING_Y = 5; // Espaçamento entre as caixas na vertical
+        const ITEMS_PER_ROW = 2;
+        const ITEMS_PER_PAGE = 6; // 2 colunas x 3 linhas
+
+        let currentX = PAGE_MARGIN_X;
+        let currentY = ITEM_START_Y;
+        let currentCol = 0;
+        let currentRow = 0;
+
+        // Cabeçalho da página (será redesenhado em cada nova página)
+        function drawPageHeader(pageDoc, data) {
+            pageDoc.setFontSize(14);
+            pageDoc.setFont(undefined, "bold");
+            pageDoc.text("Medições de Caixilharia", pageDoc.internal.pageSize.getWidth() / 2, PAGE_MARGIN_Y_TOP, { align: "center" });
+
+            pageDoc.setFont(undefined, "normal");
+            pageDoc.setFontSize(9);
+
+            pageDoc.text(`Cliente: ${data.clientName || "-"}`, PAGE_MARGIN_X, PAGE_MARGIN_Y_TOP + 10);
+            pageDoc.text(`Morada: ${data.clientAddress || "-"}`, PAGE_MARGIN_X, PAGE_MARGIN_Y_TOP + 16);
+            pageDoc.text(`Data: ${data.measurementDate || "-"}`, PAGE_MARGIN_X, PAGE_MARGIN_Y_TOP + 22);
+
+            pageDoc.setDrawColor(180);
+            pageDoc.line(PAGE_MARGIN_X, PAGE_MARGIN_Y_HEADER_BOTTOM, pageDoc.internal.pageSize.getWidth() - PAGE_MARGIN_X, PAGE_MARGIN_Y_HEADER_BOTTOM);
+        }
+
+        // Desenha o cabeçalho da primeira página
+        if (measurements.length > 0) {
+            drawPageHeader(doc, measurements[0]);
+        }
+
+        for (let i = 0; i < measurements.length; i++) {
+            const itemData = measurements[i];
+
+            // Checa se precisa de nova página
+            if (i > 0 && i % ITEMS_PER_PAGE === 0) {
+                doc.addPage();
+                currentCol = 0;
+                currentRow = 0;
+                currentX = PAGE_MARGIN_X;
+                currentY = ITEM_START_Y;
+                drawPageHeader(doc, measurements[0]); // Redesenha o cabeçalho
+            }
+
+            // Calcula a posição do item na página
+            currentX = PAGE_MARGIN_X + (currentCol * (ITEM_BOX_WIDTH + ITEM_SPACING_X));
+            currentY = ITEM_START_Y + (currentRow * (ITEM_BOX_HEIGHT + ITEM_SPACING_Y));
+
+            // Desenha a caixa do item
+            doc.setDrawColor(150);
+            doc.rect(currentX, currentY, ITEM_BOX_WIDTH, ITEM_BOX_HEIGHT);
+
+            // Título do Vão
+            doc.setFontSize(10);
+            doc.setFont(undefined, "bold");
+            doc.text(`VÃO ${i + 1}`, currentX + 3, currentY + 6);
+
+            doc.setFont(undefined, "normal");
+            doc.setFontSize(8);
+
+            // Informações do lado esquerdo
+            doc.text(`Cod: ${itemData.itemCode || "-"}`, currentX + 3, currentY + 12);
+            // Remove extensões de arquivo do nome do vão
+            const vaoName = itemData.windowDesign.replace(/\.(PNG|png|JPG|jpg|JPEG|jpeg)$/, '');
+            doc.text(`Vão: ${vaoName}`, currentX + 3, currentY + 17);
+            doc.text(`Vidro: ${itemData.glassPanelType || "-"}`, currentX + 3, currentY + 22);
+            doc.text(`Osc: ${itemData.oscillationType}`, currentX + 3, currentY + 27);
+            doc.text(`Série: ${itemData.seriesType}`, currentX + 3, currentY + 32);
+
+            doc.text(`L: ${itemData.itemWidth} mm`, currentX + 3, currentY + 37);
+            doc.text(`A: ${itemData.itemHeight} mm`, currentX + 3, currentY + 42);
+
+            // Observações
+            const obsLines = doc.splitTextToSize(`Obs: ${itemData.observations || "-"}`, ITEM_BOX_WIDTH / 2 - 5); // Meia largura - margem
+            doc.text(obsLines.slice(0, 3), currentX + 3, currentY + 50);
+
+            // Remates
+            const remLines = doc.splitTextToSize(`Remates: ${itemData.finishes || "-"}`, ITEM_BOX_WIDTH / 2 - 5);
+            doc.text(remLines.slice(0, 2), currentX + 3, currentY + 65);
+
+            // Imagem e Estores (lado direito)
+            if (itemData.imageData) {
+                const img = new Image();
+                img.src = itemData.imageData;
+
+                const maxWidth = 30; // Largura máxima da imagem no PDF
+                const maxHeight = 25; // Altura máxima da imagem no PDF
+
+                let imgRatio = img.width / img.height;
+                let imgW = maxWidth;
+                let imgH = maxWidth / imgRatio;
+
+                if (imgH > maxHeight) {
+                    imgH = maxHeight;
+                    imgW = maxHeight * imgRatio;
+                }
+
+                const imageFormat = itemData.windowDesign.toLowerCase().includes(".png") ? "PNG" : "JPEG";
+                doc.addImage(
+                    itemData.imageData,
+                    imageFormat,
+                    currentX + ITEM_BOX_WIDTH / 2 + 5, // Posiciona à direita
+                    currentY + 10,
+                    imgW,
+                    imgH
+                );
+
+                doc.setFontSize(6);
+                doc.text("Todas as vistas são por dentro", currentX + ITEM_BOX_WIDTH / 2 + 5, currentY + 10 + imgH + 3);
+                doc.setFontSize(8);
+            }
+
+            doc.text(`Estores: ${itemData.blindsIncluded}`, currentX + ITEM_BOX_WIDTH / 2 + 5, currentY + 42);
+            if (itemData.blindsIncluded === "Sim") {
+                doc.text(`L: ${itemData.blindsWidth || "-"}`, currentX + ITEM_BOX_WIDTH / 2 + 5, currentY + 47);
+                doc.text(`A: ${itemData.blindsHeight || "-"}`, currentX + ITEM_BOX_WIDTH / 2 + 5, currentY + 52);
+                doc.text(`Cor: ${itemData.blindsColor || "-"}`, currentX + ITEM_BOX_WIDTH / 2 + 5, currentY + 57);
+            }
+
+            // Atualiza a posição para o próximo item
+            currentCol++;
+            if (currentCol === ITEMS_PER_ROW) {
+                currentCol = 0;
+                currentRow++;
+            }
+        }
+
+        // Rodapé simples
+        doc.setFontSize(8);
+        doc.text("Documento técnico de medições", doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() - 10, { align: "center" });
+
+        saveBudgetHistory(); // Salva o orçamento no histórico
+
+        // Gera o nome do arquivo PDF
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+if (isIOS) {
+
+    // iPhone/Safari
+    const pdfBlob = doc.output('blob');
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    window.open(pdfUrl, '_blank');
+
+} else {
+
+    // Android/Desktop
+    doc.save(`Medicoes_${measurements[0].clientName}.pdf`);
+
+}
+
+// Abre o PDF numa nova aba no iPhone/Safari
+
+        measurements = []; // Limpa as medições após gerar PDF
+        clearForm(); // Limpa também o formulário principal
+
+        alert("PDF gerado com sucesso e dados limpos!");
+    }
+
+    // --- Funções de LocalStorage ---
+
+    /**
+     * Guarda os dados do cliente atual no LocalStorage.
+     */
+    function saveClientData() {
+        let clients = JSON.parse(localStorage.getItem("clientsHistory")) || [];
+        const currentClient = {
+            clientName: elements.clientName.value.trim(),
+            clientAddress: elements.clientAddress.value.trim(),
+            measurementDate: elements.measurementDate.value
+        };
+
+        if (currentClient.clientName && !clients.some(c => c.clientName === currentClient.clientName)) {
+            clients.push(currentClient);
+            localStorage.setItem("clientsHistory", JSON.stringify(clients));
+        }
+        loadClientList();
+    }
+
+    /**
+     * Carrega a lista de clientes do LocalStorage para o datalist.
+     */
+    function loadClientList() {
+        const clients = JSON.parse(localStorage.getItem("clientsHistory")) || [];
+        elements.clientList.innerHTML = "";
+        clients.forEach(c => {
+            const option = document.createElement("option");
+            option.value = c.clientName;
+            elements.clientList.appendChild(option);
+        });
+    }
+
+    /**
+     * Preenche os campos de cliente e morada quando um cliente existente é selecionado.
+     */
+    elements.clientName.addEventListener("change", function() {
+        const clients = JSON.parse(localStorage.getItem("clientsHistory")) || [];
+        const selectedClient = clients.find(x => x.clientName === this.value);
+        if (selectedClient) {
+            elements.clientAddress.value = selectedClient.clientAddress;
+            elements.measurementDate.value = selectedClient.measurementDate;
+        }
     });
-}
 
-async function getFormData() {
-
-    return {
-
-        clientName:
-            elements.clientName.value,
-
-        clientAddress:
-            elements.clientAddress.value,
-
-        measurementDate:
-            elements.measurementDate.value,
-
-        itemCode:
-            elements.itemCode.value,
-
-        itemWidth:
-            elements.itemWidth.value,
-
-        itemHeight:
-            elements.itemHeight.value,
-
-        windowDesign:
-            elements.windowDesign.value,
-
-        glassPanelType:
-            elements.glassPanelType.value,
-
-        observations:
-            elements.observations.value,
-
-        finishes:
-            elements.finishes.value,
-
-        imageData:
-            await getImageBase64(
-                elements.windowDesign.value
-            )
-    };
-}
-
-async function addMeasurement() {
-
-    const data = await getFormData();
-
-    measurements.push(data);
-
-    clearForm();
-
-    alert("Item adicionado.");
-}
-
-function clearForm() {
-
-    elements.itemCode.value = '';
-
-    elements.itemWidth.value = '';
-
-    elements.itemHeight.value = '';
-
-    elements.windowDesign.value = '';
-
-    elements.glassPanelType.value = '';
-
-    elements.observations.value = '';
-
-    elements.finishes.value = '';
-
-    updateImagePreview('');
-}
-
-async function generatePdf() {
-
-    if (
-        elements.itemCode.value ||
-        elements.itemWidth.value
-    ) {
-
-        const data = await getFormData();
-
-        measurements.push(data);
+    /**
+     * Salva o orçamento gerado no histórico de orçamentos do LocalStorage.
+     */
+    function saveBudgetHistory() {
+        let budgetHistory = JSON.parse(localStorage.getItem("budgetsHistory")) || [];
+        const newBudget = {
+            timestamp: new Date().toISOString(),
+            clientName: measurements[0].clientName, // Pega o nome do primeiro item
+            clientAddress: measurements[0].clientAddress,
+            items: measurements
+        };
+        budgetHistory.push(newBudget);
+        localStorage.setItem("budgetsHistory", JSON.stringify(budgetHistory));
     }
 
-    if (measurements.length === 0) {
-        alert("Nenhum item.");
-        return;
-    }
-
-    const { jsPDF } = window.jspdf;
-
-    const doc = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4"
+    // --- Inicialização ---
+    document.addEventListener('DOMContentLoaded', () => {
+        loadClientList();
+        // Define a data atual como padrão, se o campo estiver vazio
+        if (!elements.measurementDate.value) {
+            const today = new Date().toISOString().split('T')[0];
+            elements.measurementDate.value = today;
+        }
+        // Garante que o estado inicial dos estores está correto
+        toggleBlindsFields(elements.blindsIncluded.value);
+        updateImagePreview(elements.windowDesign.value);
     });
 
-    const PAGE_MARGIN_X = 8;
-
-    const ITEM_START_Y = 38;
-
-    const ITEM_BOX_WIDTH = 93;
-
-    const ITEM_BOX_HEIGHT = 78;
-
-    const ITEM_SPACING_X = 4;
-
-    const ITEM_SPACING_Y = 4;
-
-    const ITEMS_PER_ROW = 2;
-
-    const ITEMS_PER_PAGE = 6;
-
-    let currentCol = 0;
-
-    let currentRow = 0;
-
-    // HEADER
-    doc.setFontSize(15);
-
-    doc.setFont(undefined, "bold");
-
-    doc.text(
-        "Medições de Caixilharia",
-        105,
-        16,
-        { align: "center" }
-    );
-
-    doc.setFontSize(8);
-
-    doc.setFont(undefined, "normal");
-
-    doc.text(
-        `Cliente: ${measurements[0].clientName}`,
-        PAGE_MARGIN_X,
-        24
-    );
-
-    doc.text(
-        `Morada: ${measurements[0].clientAddress}`,
-        PAGE_MARGIN_X,
-        29
-    );
-
-    doc.text(
-        `Data: ${measurements[0].measurementDate}`,
-        PAGE_MARGIN_X,
-        34
-    );
-
-    doc.line(8, 36, 202, 36);
-
-    // ITEMS
-    for (let i = 0; i < measurements.length; i++) {
-
-        const item = measurements[i];
-
-        if (
-            i > 0 &&
-            i % ITEMS_PER_PAGE === 0
-        ) {
-
-            doc.addPage();
-
-            currentCol = 0;
-            currentRow = 0;
-        }
-
-        const currentX =
-            PAGE_MARGIN_X +
-            (currentCol *
-            (ITEM_BOX_WIDTH + ITEM_SPACING_X));
-
-        const currentY =
-            ITEM_START_Y +
-            (currentRow *
-            (ITEM_BOX_HEIGHT + ITEM_SPACING_Y));
-
-        // BOX
-        doc.roundedRect(
-            currentX,
-            currentY,
-            ITEM_BOX_WIDTH,
-            ITEM_BOX_HEIGHT,
-            2,
-            2
-        );
-
-        // TITLE
-        doc.setFontSize(9);
-
-        doc.setFont(undefined, "bold");
-
-        doc.text(
-            `VÃO ${i + 1}`,
-            currentX + 3,
-            currentY + 6
-        );
-
-        // LEFT
-        doc.setFontSize(7);
-
-        doc.setFont(undefined, "normal");
-
-        let y = currentY + 12;
-
-        const leftX = currentX + 3;
-
-        doc.text(
-            `Cod: ${item.itemCode}`,
-            leftX,
-            y
-        );
-
-        y += 4;
-
-        doc.text(
-            `L: ${item.itemWidth} mm`,
-            leftX,
-            y
-        );
-
-        y += 4;
-
-        doc.text(
-            `A: ${item.itemHeight} mm`,
-            leftX,
-            y
-        );
-
-        y += 4;
-
-        doc.text(
-            `Vidro: ${item.glassPanelType || "-"}`,
-            leftX,
-            y
-        );
-
-        y += 6;
-
-        const obs =
-            doc.splitTextToSize(
-                `Obs: ${item.observations || "-"}`,
-                40
-            );
-
-        doc.text(
-            obs.slice(0, 2),
-            leftX,
-            y
-        );
-
-        // IMAGE
-        if (item.imageData) {
-
-            const imageX =
-                currentX + 58;
-
-            const imageY =
-                currentY + 18;
-
-            doc.addImage(
-                item.imageData,
-                "JPEG",
-                imageX,
-                imageY,
-                26,
-                22
-            );
-
-            doc.setFontSize(5);
-
-            doc.text(
-                "Vista interior",
-                imageX + 13,
-                imageY + 26,
-                { align: "center" }
-            );
-        }
-
-        currentCol++;
-
-        if (
-            currentCol === ITEMS_PER_ROW
-        ) {
-
-            currentCol = 0;
-
-            currentRow++;
-        }
-    }
-
-    // FOOTER
-    doc.setFontSize(7);
-
-    doc.text(
-        "Documento técnico de medições",
-        105,
-        290,
-        { align: "center" }
-    );
-
-    // IOS
-    const isIOS =
-        /iPad|iPhone|iPod/.test(
-            navigator.userAgent
-        );
-
-    if (isIOS) {
-
-        const pdfBlob =
-            doc.output('blob');
-
-        const pdfUrl =
-            URL.createObjectURL(pdfBlob);
-
-        window.open(pdfUrl, '_blank');
-
-    } else {
-
-        doc.save(
-            `Medicoes_${measurements[0].clientName}.pdf`
-        );
-    }
-
-    measurements = [];
-
-    clearForm();
-
-    alert("PDF gerado com sucesso!");
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-
-    const today =
-        new Date()
-        .toISOString()
-        .split('T')[0];
-
-    elements.measurementDate.value =
-        today;
-});
+    // Inicializa a pré-visualização da imagem no carregamento, caso já tenha um valor no select
+    updateImagePreview(elements.windowDesign.value);
 
 </script>
 
